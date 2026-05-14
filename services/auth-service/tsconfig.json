@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "paths": {
+      "@realestate/types": ["../../shared/types/src"],
+      "@realestate/errors": ["../../shared/errors/src"],
+      "@realestate/database": ["../../shared/database/src"],
+      "@realestate/utils": ["../../shared/utils/src"],
+      "@realestate/middlewares": ["../../shared/middlewares/src"],
+      "@realestate/response": ["../../shared/response/src"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

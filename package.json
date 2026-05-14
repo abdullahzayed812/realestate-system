@@ -1,0 +1,42 @@
+{
+  "name": "realestate-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Production-ready real estate platform for Borg El Arab, Egypt",
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "shared/*"
+  ],
+  "scripts": {
+    "dev": "concurrently --kill-others-on-fail -n auth,property,booking,chat,media,notif -c blue,green,yellow,magenta,cyan,white \"npm run dev --workspace=services/auth-service\" \"npm run dev --workspace=services/property-service\" \"npm run dev --workspace=services/booking-service\" \"npm run dev --workspace=services/chat-service\" \"npm run dev --workspace=services/media-service\" \"npm run dev --workspace=services/notification-service\"",
+    "dev:backend": "concurrently --kill-others-on-fail -n auth,property,booking,chat,media,notif -c blue,green,yellow,magenta,cyan,white \"npm run dev --workspace=services/auth-service\" \"npm run dev --workspace=services/property-service\" \"npm run dev --workspace=services/booking-service\" \"npm run dev --workspace=services/chat-service\" \"npm run dev --workspace=services/media-service\" \"npm run dev --workspace=services/notification-service\"",
+    "dev:dashboard": "npm run dev --workspace=apps/admin-dashboard",
+    "dev:all": "concurrently --kill-others-on-fail -n auth,property,booking,chat,media,notif,dashboard -c blue,green,yellow,magenta,cyan,white,red \"npm run dev --workspace=services/auth-service\" \"npm run dev --workspace=services/property-service\" \"npm run dev --workspace=services/booking-service\" \"npm run dev --workspace=services/chat-service\" \"npm run dev --workspace=services/media-service\" \"npm run dev --workspace=services/notification-service\" \"npm run dev --workspace=apps/admin-dashboard\"",
+    "dev:auth": "npm run dev --workspace=services/auth-service",
+    "dev:property": "npm run dev --workspace=services/property-service",
+    "dev:booking": "npm run dev --workspace=services/booking-service",
+    "dev:chat": "npm run dev --workspace=services/chat-service",
+    "dev:media": "npm run dev --workspace=services/media-service",
+    "dev:notification": "npm run dev --workspace=services/notification-service",
+    "killall": "pkill -f 'tsx watch' 2>/dev/null; pkill -f 'concurrently' 2>/dev/null; for p in 3001 3002 3003 3004 3005 3006; do fuser -k ${p}/tcp 2>/dev/null; done; echo 'All services killed'",
+    "build:all": "npm run build --workspaces",
+    "install:all": "npm install --legacy-peer-deps",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.12.0",
+    "prettier": "^3.2.0",
+    "eslint": "^8.57.0",
+    "@typescript-eslint/eslint-plugin": "^7.6.0",
+    "@typescript-eslint/parser": "^7.6.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  }
+}
