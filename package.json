@@ -19,6 +19,8 @@
     "dev:chat": "npm run dev --workspace=services/chat-service",
     "dev:media": "npm run dev --workspace=services/media-service",
     "dev:notification": "npm run dev --workspace=services/notification-service",
+    "nginx:start": "sudo systemctl stop nginx 2>/dev/null; sudo nginx -c $(pwd)/nginx/nginx.dev.conf",
+    "nginx:reload": "sudo nginx -s reload",
     "killall": "pkill -f 'tsx watch' 2>/dev/null; pkill -f 'concurrently' 2>/dev/null; for p in 3001 3002 3003 3004 3005 3006; do fuser -k ${p}/tcp 2>/dev/null; done; echo 'All services killed'",
     "build:all": "npm run build --workspaces",
     "install:all": "npm install --legacy-peer-deps",
@@ -38,5 +40,10 @@
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=9.0.0"
+  },
+  "overrides": {
+    "react-native-reanimated": "3.10.1",
+    "react-native-gesture-handler": "2.16.1",
+    "react-native-maps": "1.14.0"
   }
 }

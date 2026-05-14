@@ -64,6 +64,11 @@ export class ChatGateway {
 
       socket.on('join_chat', async (data: { chatId: string }) => {
         try {
+          if (!data?.chatId || data.chatId === 'undefined' || data.chatId === 'null') {
+            socket.emit('error', { message: 'Invalid chat ID' });
+            return;
+          }
+
           const chat = await this.chatRepo.findById(data.chatId);
 
           if (!chat) {

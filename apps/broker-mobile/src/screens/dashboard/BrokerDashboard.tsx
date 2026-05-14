@@ -144,7 +144,7 @@ export default function BrokerDashboard(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
   header: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   headerCenter: { flex: 1 },
   greeting: { fontSize: 13, color: '#94a3b8' },
-  userName: { fontSize: 18, fontWeight: '800', color: '#fff', textAlign: 'right' },
+  userName: { fontSize: 18, fontWeight: '800', color: '#fff'' },
   notifBtn: { position: 'relative' },
   notifDot: {
     position: 'absolute', top: 0, right: 0,
@@ -171,7 +171,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     borderRadius: 16,
     padding: 16,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -193,9 +193,9 @@ const styles = StyleSheet.create({
   },
   statIcon: { fontSize: 28, marginBottom: 8 },
   statValue: { fontSize: 26, fontWeight: '800' },
-  statLabel: { fontSize: 12, color: '#64748b', marginTop: 2, textAlign: 'right' },
+  statLabel: { fontSize: 12, color: '#64748b', marginTop: 2' },
   section: { paddingHorizontal: 20, marginTop: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 14, textAlign: 'right' },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 14' },
   actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   actionCard: {
     width: (width - 60) / 2,
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
   },
   progressHeader: {
-    flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10,
   },
   progressTitle: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
   progressPercent: { fontSize: 18, fontWeight: '800', color: '#1d4ed8' },
@@ -225,5 +225,5 @@ const styles = StyleSheet.create({
     height: 8, backgroundColor: '#f1f5f9', borderRadius: 4, overflow: 'hidden', marginBottom: 8,
   },
   progressFill: { height: '100%', backgroundColor: '#1d4ed8', borderRadius: 4 },
-  progressHint: { fontSize: 12, color: '#64748b', textAlign: 'right' },
+  progressHint: { fontSize: 12, color: '#64748b'' },
 });

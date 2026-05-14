@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
   },
-  completionHeader: { flexDirection: 'row-reverse', justifyContent: 'space-between', marginBottom: 10 },
+  completionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
   completionTitle: { fontSize: 14, fontWeight: '700', color: '#0f172a' },
   completionPercent: { fontSize: 16, fontWeight: '800', color: '#1d4ed8' },
   progressTrack: { height: 8, backgroundColor: '#f1f5f9', borderRadius: 4, overflow: 'hidden' },
@@ -170,12 +170,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
   },
   menuItem: {
-    flexDirection: 'row-reverse', alignItems: 'center',
+    flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 16, paddingVertical: 14, gap: 12,
   },
   menuItemBorder: { borderBottomWidth: 1, borderBottomColor: '#f8fafc' },
   menuItemIcon: { fontSize: 20, width: 28, textAlign: 'center' },
-  menuItemLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: '#0f172a', textAlign: 'right' },
+  menuItemLabel: { flex: 1, fontSize: 15, fontWeight: '500', color: '#0f172a'' },
   chevron: { fontSize: 20, color: '#cbd5e1', transform: [{ scaleX: -1 }] },
   logoutBtn: {
     marginHorizontal: 16, marginTop: 12, backgroundColor: '#fef2f2',

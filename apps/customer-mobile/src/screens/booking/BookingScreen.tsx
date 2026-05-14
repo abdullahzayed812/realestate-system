@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView,
-  TextInput, Platform, ActivityIndicator, Alert,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  TextInput,
+  Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -47,18 +54,17 @@ export default function BookingScreen(): React.ReactElement {
       return data.data;
     },
     onSuccess: () => {
-      Alert.alert(
-        'تم الحجز بنجاح',
-        'سيتواصل معك الوسيط لتأكيد الموعد',
-        [{ text: 'حسناً', onPress: () => navigation.goBack() }],
-      );
+      Alert.alert('تم الحجز بنجاح', 'سيتواصل معك الوسيط لتأكيد الموعد', [
+        { text: 'حسناً', onPress: () => navigation.goBack() },
+      ]);
     },
     onError: (err: any) => {
       Alert.alert('خطأ', err?.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
     },
   });
 
-  const isValid = selectedDate && selectedTime && (bookingType !== 'RENTAL' || (rentalStart && rentalEnd));
+  const isValid =
+    selectedDate && selectedTime && (bookingType !== 'RENTAL' || (rentalStart && rentalEnd));
 
   const getMinDate = () => {
     const tomorrow = new Date();
@@ -88,7 +94,9 @@ export default function BookingScreen(): React.ReactElement {
                 onPress={() => setBookingType(type.key)}
               >
                 <Text style={styles.typeIcon}>{type.icon}</Text>
-                <Text style={[styles.typeLabel, bookingType === type.key && styles.typeLabelActive]}>
+                <Text
+                  style={[styles.typeLabel, bookingType === type.key && styles.typeLabelActive]}
+                >
                   {type.label}
                 </Text>
                 <Text style={[styles.typeDesc, bookingType === type.key && { color: '#fff' }]}>
@@ -108,7 +116,6 @@ export default function BookingScreen(): React.ReactElement {
             onChangeText={setSelectedDate}
             placeholder={getMinDate()}
             placeholderTextColor="#94a3b8"
-            textAlign="right"
           />
           <Text style={styles.hint}>صيغة التاريخ: YYYY-MM-DD (مثال: 2026-05-25)</Text>
         </View>
@@ -144,7 +151,6 @@ export default function BookingScreen(): React.ReactElement {
                   onChangeText={setRentalStart}
                   placeholder="2026-06-01"
                   placeholderTextColor="#94a3b8"
-                  textAlign="right"
                 />
               </View>
               <View style={{ flex: 1 }}>
@@ -155,7 +161,6 @@ export default function BookingScreen(): React.ReactElement {
                   onChangeText={setRentalEnd}
                   placeholder="2026-12-01"
                   placeholderTextColor="#94a3b8"
-                  textAlign="right"
                 />
               </View>
             </View>
@@ -173,7 +178,6 @@ export default function BookingScreen(): React.ReactElement {
             multiline
             numberOfLines={4}
             textAlignVertical="top"
-            textAlign="right"
             placeholderTextColor="#94a3b8"
           />
         </View>
@@ -183,7 +187,10 @@ export default function BookingScreen(): React.ReactElement {
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.submitBtn, (!isValid || bookingMutation.isPending) && styles.submitBtnDisabled]}
+          style={[
+            styles.submitBtn,
+            (!isValid || bookingMutation.isPending) && styles.submitBtnDisabled,
+          ]}
           onPress={() => bookingMutation.mutate()}
           disabled={!isValid || bookingMutation.isPending}
         >
@@ -201,20 +208,30 @@ export default function BookingScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
   header: {
-    flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#fff',
-    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
   backBtn: { padding: 4, width: 40 },
   backIcon: { fontSize: 22, color: '#0a1628' },
   title: { fontSize: 18, fontWeight: '700', color: '#0f172a' },
   scroll: { flex: 1 },
   section: { backgroundColor: '#fff', padding: 20, marginBottom: 8 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', textAlign: 'right', marginBottom: 14 },
-  typeGrid: { flexDirection: 'row-reverse', gap: 10 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 14 },
+  typeGrid: { flexDirection: 'row', gap: 10 },
   typeCard: {
-    flex: 1, borderRadius: 16, padding: 14, alignItems: 'center',
-    borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#fff',
+    flex: 1,
+    borderRadius: 16,
+    padding: 14,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
   },
   typeCardActive: { backgroundColor: '#0a1628', borderColor: '#0a1628' },
   typeIcon: { fontSize: 28, marginBottom: 6 },
@@ -222,34 +239,54 @@ const styles = StyleSheet.create({
   typeLabelActive: { color: '#fff' },
   typeDesc: { fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 3 },
   dateInput: {
-    borderWidth: 1.5, borderColor: '#e2e8f0', borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 13, fontSize: 14,
-    color: '#0f172a', backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    fontSize: 14,
+    color: '#0f172a',
+    backgroundColor: '#fff',
   },
-  hint: { fontSize: 11, color: '#94a3b8', textAlign: 'right', marginTop: 4 },
-  timeGrid: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
+  hint: { fontSize: 11, color: '#94a3b8', marginTop: 4 },
+  timeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   timeSlot: {
-    paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
   },
   timeSlotActive: { backgroundColor: '#1d4ed8', borderColor: '#1d4ed8' },
   timeText: { fontSize: 13, fontWeight: '600', color: '#374151' },
   timeTextActive: { color: '#fff' },
-  rentalDates: { flexDirection: 'row-reverse', gap: 12 },
-  rentalLabel: { fontSize: 13, fontWeight: '600', color: '#374151', textAlign: 'right', marginBottom: 6 },
+  rentalDates: { flexDirection: 'row', gap: 12 },
+  rentalLabel: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6 },
   messageInput: {
-    borderWidth: 1.5, borderColor: '#e2e8f0', borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 13, fontSize: 14,
-    color: '#0f172a', backgroundColor: '#fff', minHeight: 100,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 13,
+    fontSize: 14,
+    color: '#0f172a',
+    backgroundColor: '#fff',
+    minHeight: 100,
   },
   footer: {
-    backgroundColor: '#fff', paddingHorizontal: 20,
-    paddingBottom: Platform.OS === 'ios' ? 32 : 20, paddingTop: 12,
-    borderTopWidth: 1, borderTopColor: '#f1f5f9',
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'ios' ? 32 : 20,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
   },
   submitBtn: {
-    backgroundColor: '#1d4ed8', borderRadius: 16,
-    paddingVertical: 16, alignItems: 'center',
+    backgroundColor: '#1d4ed8',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
   },
   submitBtnDisabled: { opacity: 0.5 },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },

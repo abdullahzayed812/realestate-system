@@ -1,7 +1,13 @@
 import React, { useCallback } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  FlatList, StatusBar, RefreshControl, Image, TextInput,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  StatusBar,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -97,10 +103,7 @@ export default function HomeScreen(): React.ReactElement {
           {LISTING_TYPES.map((lt) => (
             <TouchableOpacity
               key={lt.key}
-              style={[
-                styles.filterChip,
-                selectedListing === lt.key && styles.filterChipActive,
-              ]}
+              style={[styles.filterChip, selectedListing === lt.key && styles.filterChipActive]}
               onPress={() => setSelectedListing(selectedListing === lt.key ? '' : lt.key)}
             >
               <Text
@@ -120,7 +123,14 @@ export default function HomeScreen(): React.ReactElement {
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>العقارات المميزة</Text>
-              <TouchableOpacity onPress={() => navigation.navigate('Search', { screen: 'SearchMain', params: { featured: true } })}>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate('Search', {
+                    screen: 'SearchMain',
+                    params: { featured: true },
+                  })
+                }
+              >
                 <Text style={styles.seeAll}>عرض الكل</Text>
               </TouchableOpacity>
             </View>
@@ -128,13 +138,18 @@ export default function HomeScreen(): React.ReactElement {
               data={featured}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20 }}
+              contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 5, gap: 12 }}
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => (
                 <PropertyCard
                   property={item}
-                  style={{ width: 260, marginLeft: 12 }}
-                  onPress={() => navigation.navigate('HomeMain', { screen: 'PropertyDetail', params: { id: item.id } })}
+                  style={{ width: 260 }}
+                  onPress={() =>
+                    navigation.navigate('HomeMain', {
+                      screen: 'PropertyDetail',
+                      params: { id: item.id },
+                    })
+                  }
                 />
               )}
             />
@@ -171,10 +186,12 @@ export default function HomeScreen(): React.ReactElement {
         </View>
 
         {/* Properties List */}
-        <View style={[styles.section, { paddingHorizontal: 20 }]}>
+        <View style={[styles.section, { paddingHorizontal: 20, paddingBottom: 90 }]}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>أحدث العقارات</Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Search', { screen: 'SearchMain' })}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Search', { screen: 'SearchMain' })}
+            >
               <Text style={styles.seeAll}>عرض الكل</Text>
             </TouchableOpacity>
           </View>
@@ -183,10 +200,12 @@ export default function HomeScreen(): React.ReactElement {
             <PropertyCard
               key={property.id}
               property={property}
-              onPress={() => navigation.navigate('Home', {
-                screen: 'PropertyDetail',
-                params: { id: property.id },
-              })}
+              onPress={() =>
+                navigation.navigate('Home', {
+                  screen: 'PropertyDetail',
+                  params: { id: property.id },
+                })
+              }
               horizontal
             />
           ))}
@@ -228,13 +247,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: '#0f172a',
-    textAlign: 'right',
   },
   location: {
     fontSize: 13,
     color: '#64748b',
     marginTop: 2,
-    textAlign: 'right',
   },
   notifBtn: {
     width: 44,
@@ -245,7 +262,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   searchBar: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#f1f5f9',
     borderRadius: 16,
@@ -258,7 +275,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: '#94a3b8',
-    textAlign: 'right',
     marginRight: 8,
   },
   filterRow: {

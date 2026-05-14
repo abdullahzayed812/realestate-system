@@ -1,6 +1,11 @@
 import React from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator,
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -9,11 +14,11 @@ import { api } from '../../services/api';
 
 interface Chat {
   id: string;
-  property: { id: string; titleAr: string; type: string } | null;
+  propertyId: string | null;
+  propertyTitleAr: string | null;
   otherUser: { firstName: string; lastName: string; avatarUrl: string | null };
-  lastMessage: string | null;
-  lastMessageAt: string | null;
-  unreadCount: number;
+  lastMessage: { content: string | null; createdAt: string } | null;
+  customerUnread: number;
 }
 
 function formatTime(dateStr: string | null): string {
@@ -35,24 +40,6 @@ export default function ChatListScreen(): React.ReactElement {
       const { data } = await api.get('/chats');
       return data.data;
     },
-    placeholderData: [
-      {
-        id: 'chat-001',
-        property: { id: 'prop-001', titleAr: 'شقة فاخرة في برج العرب الجديدة', type: 'APARTMENT' },
-        otherUser: { firstName: 'محمد', lastName: 'السيد', avatarUrl: null },
-        lastMessage: 'ممتاز، موعدك الثلاثاء الساعة 10 صباحاً',
-        lastMessageAt: new Date(Date.now() - 3600000).toISOString(),
-        unreadCount: 1,
-      },
-      {
-        id: 'chat-002',
-        property: { id: 'prop-003', titleAr: 'شقة مفروشة للإيجار', type: 'APARTMENT' },
-        otherUser: { firstName: 'محمد', lastName: 'السيد', avatarUrl: null },
-        lastMessage: 'وعليكم السلام، الشقة ممتازة ومتاحة الآن',
-        lastMessageAt: new Date(Date.now() - 86400000).toISOString(),
-        unreadCount: 0,
-      },
-    ],
   });
 
   return (
@@ -72,22 +59,25 @@ export default function ChatListScreen(): React.ReactElement {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.chatItem}
-              onPress={() => navigation.navigate('Chat', {
-                chatId: item.id,
-                otherUser: item.otherUser,
-                property: item.property,
-              })}
+              onPress={() =>
+                navigation.navigate('ChatRoom', {
+                  chatId: item.id,
+                  otherUser: item.otherUser,
+                  property: item.property,
+                })
+              }
               activeOpacity={0.7}
             >
               <View style={styles.avatarContainer}>
                 <View style={styles.avatar}>
                   <Text style={styles.avatarText}>
-                    {item.otherUser.firstName[0]}{item.otherUser.lastName[0]}
+                    {item.otherUser.firstName[0]}
+                    {item.otherUser.lastName[0]}
                   </Text>
                 </View>
-                {item.unreadCount > 0 && (
+                {item.customerUnread > 0 && (
                   <View style={styles.unreadBadge}>
-                    <Text style={styles.unreadText}>{item.unreadCount}</Text>
+                    <Text style={styles.unreadText}>{item.customerUnread}</Text>
                   </View>
                 )}
               </View>
@@ -97,18 +87,18 @@ export default function ChatListScreen(): React.ReactElement {
                   <Text style={styles.otherUserName}>
                     {item.otherUser.firstName} {item.otherUser.lastName}
                   </Text>
-                  <Text style={styles.timeText}>{formatTime(item.lastMessageAt)}</Text>
+                  <Text style={styles.timeText}>{formatTime(item.lastMessage?.createdAt ?? null)}</Text>
                 </View>
-                {item.property && (
+                {item.propertyTitleAr && (
                   <Text style={styles.propertyName} numberOfLines={1}>
-                    🏠 {item.property.titleAr}
+                    🏠 {item.propertyTitleAr}
                   </Text>
                 )}
                 <Text
-                  style={[styles.lastMessage, item.unreadCount > 0 && styles.lastMessageUnread]}
+                  style={[styles.lastMessage, item.customerUnread > 0 && styles.lastMessageUnread]}
                   numberOfLines={1}
                 >
-                  {item.lastMessage || 'لا توجد رسائل'}
+                  {item.lastMessage?.content || 'لا توجد رسائل'}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -130,34 +120,49 @@ export default function ChatListScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: {
-    paddingHorizontal: 20, paddingVertical: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
-  headerTitle: { fontSize: 22, fontWeight: '800', color: '#0f172a', textAlign: 'right' },
+  headerTitle: { fontSize: 22, fontWeight: '800', color: '#0f172a' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   chatItem: {
-    flexDirection: 'row-reverse', alignItems: 'center',
-    paddingHorizontal: 20, paddingVertical: 14, gap: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+    gap: 12,
   },
   avatarContainer: { position: 'relative' },
   avatar: {
-    width: 52, height: 52, borderRadius: 26,
-    backgroundColor: '#0a1628', alignItems: 'center', justifyContent: 'center',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#0a1628',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   avatarText: { color: '#fff', fontWeight: '700', fontSize: 16 },
   unreadBadge: {
-    position: 'absolute', top: -2, left: -2,
-    minWidth: 20, height: 20, borderRadius: 10,
-    backgroundColor: '#ef4444', alignItems: 'center', justifyContent: 'center',
+    position: 'absolute',
+    top: -2,
+    left: -2,
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#ef4444',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 4,
   },
   unreadText: { color: '#fff', fontSize: 11, fontWeight: '800' },
   chatInfo: { flex: 1 },
-  chatTopRow: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center' },
+  chatTopRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   otherUserName: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
   timeText: { fontSize: 12, color: '#94a3b8' },
-  propertyName: { fontSize: 12, color: '#64748b', marginTop: 2, textAlign: 'right' },
-  lastMessage: { fontSize: 13, color: '#94a3b8', marginTop: 3, textAlign: 'right' },
+  propertyName: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  lastMessage: { fontSize: 13, color: '#94a3b8', marginTop: 3 },
   lastMessageUnread: { color: '#374151', fontWeight: '600' },
   separator: { height: 1, backgroundColor: '#f8fafc', marginHorizontal: 20 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100 },

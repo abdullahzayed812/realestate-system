@@ -36,8 +36,18 @@ export default function OtpScreen(): React.ReactElement {
     }
     setLoading(true);
     try {
-      const { data } = await api.post('/auth/otp/send', { phone, purpose: 'LOGIN' });
-      setIsNewUser(data.data?.isNewUser ?? false);
+      let newUser = false;
+      try {
+        await api.post('/auth/otp/send', { phone, purpose: 'LOGIN' });
+      } catch (err: any) {
+        if (err?.response?.status === 404) {
+          newUser = true;
+          await api.post('/auth/otp/send', { phone, purpose: 'REGISTER' });
+        } else {
+          throw err;
+        }
+      }
+      setIsNewUser(newUser);
       setStep('OTP');
       setCountdown(60);
     } catch (err: any) {

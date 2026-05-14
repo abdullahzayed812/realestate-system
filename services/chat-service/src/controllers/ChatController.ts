@@ -18,16 +18,18 @@ export class ChatController {
 
   startChat = async (req: Request, res: Response): Promise<void> => {
     const { brokerId, propertyId } = req.body;
-    const chat = await this.chatRepo.findOrCreateChat(
-      req.user!.sub,
-      brokerId,
-      propertyId,
-    );
+    const chat = await this.chatRepo.findOrCreateChat(req.user!.sub, brokerId, propertyId);
     ApiResponse.success(res, chat);
   };
 
   getChatMessages = async (req: Request, res: Response): Promise<void> => {
     const { chatId } = req.params;
+
+    if (!chatId || chatId === 'undefined' || chatId === 'null') {
+      ApiResponse.error(res, 'Invalid chat ID', 400);
+      return;
+    }
+
     const page = Number(req.query.page || 1);
     const limit = Number(req.query.limit || 30);
 

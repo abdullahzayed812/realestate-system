@@ -214,7 +214,6 @@ export default function ChatScreen(): React.ReactElement {
             value={inputText}
             onChangeText={handleTyping}
             multiline
-            textAlign="right"
             maxLength={2000}
           />
           <TouchableOpacity
@@ -233,7 +232,7 @@ export default function ChatScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
   header: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#0a1628',
     paddingHorizontal: 16,
@@ -242,8 +241,8 @@ const styles = StyleSheet.create({
   },
   backBtn: { padding: 4 },
   headerInfo: { flex: 1 },
-  headerName: { fontSize: 16, fontWeight: '700', color: '#fff', textAlign: 'right' },
-  headerStatus: { fontSize: 12, color: '#94a3b8', textAlign: 'right' },
+  headerName: { fontSize: 16, fontWeight: '700', color: '#fff'' },
+  headerStatus: { fontSize: 12, color: '#94a3b8'' },
   headerStatusOnline: { color: '#4ade80' },
   headerAvatar: {
     width: 40, height: 40, borderRadius: 20,
@@ -266,10 +265,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#1d4ed8',
     borderBottomLeftRadius: 4,
   },
-  messageText: { fontSize: 15, color: '#0f172a', lineHeight: 22, textAlign: 'right' },
+  messageText: { fontSize: 15, color: '#0f172a', lineHeight: 22' },
   messageTextMine: { color: '#fff' },
   messageImage: { width: 220, height: 165, borderRadius: 10 },
-  messageTime: { fontSize: 11, color: '#94a3b8', marginTop: 4, textAlign: 'right' },
+  messageTime: { fontSize: 11, color: '#94a3b8', marginTop: 4' },
   messageTimeMine: { color: 'rgba(255,255,255,0.7)' },
   typingIndicator: {
     paddingHorizontal: 16, paddingVertical: 8,
@@ -277,7 +276,7 @@ const styles = StyleSheet.create({
   },
   typingText: { fontSize: 13, color: '#64748b', fontStyle: 'italic' },
   inputRow: {
-    flexDirection: 'row-reverse', alignItems: 'flex-end',
+    flexDirection: 'row', alignItems: 'flex-end',
     backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 10,
     borderTopWidth: 1, borderTopColor: '#f1f5f9', gap: 8,
   },

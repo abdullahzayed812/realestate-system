@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -47,7 +55,10 @@ export default function RegisterScreen(): React.ReactElement {
 
   return (
     <SafeAreaView style={styles.container}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <View style={styles.header}>
             <Text style={styles.title}>إنشاء حساب وسيط</Text>
@@ -58,27 +69,54 @@ export default function RegisterScreen(): React.ReactElement {
             <View style={styles.row}>
               <View style={styles.half}>
                 <Text style={styles.label}>الاسم الأول *</Text>
-                <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} placeholder="محمد" textAlign="right" />
+                <TextInput
+                  style={styles.input}
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  placeholder="محمد"
+                />
               </View>
               <View style={styles.half}>
                 <Text style={styles.label}>الاسم الأخير *</Text>
-                <TextInput style={styles.input} value={lastName} onChangeText={setLastName} placeholder="أحمد" textAlign="right" />
+                <TextInput
+                  style={styles.input}
+                  value={lastName}
+                  onChangeText={setLastName}
+                  placeholder="أحمد"
+                />
               </View>
             </View>
 
             <View>
               <Text style={styles.label}>رقم الهاتف</Text>
-              <TextInput style={[styles.input, styles.inputDisabled]} value={phone} editable={false} textAlign="right" />
+              <TextInput
+                style={[styles.input, styles.inputDisabled]}
+                value={phone}
+                editable={false}
+              />
             </View>
 
             <View>
               <Text style={styles.label}>البريد الإلكتروني (اختياري)</Text>
-              <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="broker@example.com" keyboardType="email-address" autoCapitalize="none" textAlign="left" />
+              <TextInput
+                style={styles.input}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="broker@example.com"
+                keyboardType="email-address"
+                autoCapitalize="none"
+                textAlign="left"
+              />
             </View>
 
             <View>
               <Text style={styles.label}>رقم الترخيص (اختياري)</Text>
-              <TextInput style={styles.input} value={licenseNumber} onChangeText={setLicenseNumber} placeholder="LIC-2024-XXX" textAlign="right" />
+              <TextInput
+                style={styles.input}
+                value={licenseNumber}
+                onChangeText={setLicenseNumber}
+                placeholder="LIC-2024-XXX"
+              />
             </View>
 
             <TouchableOpacity
@@ -86,7 +124,11 @@ export default function RegisterScreen(): React.ReactElement {
               onPress={handleRegister}
               disabled={loading}
             >
-              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>إنشاء الحساب</Text>}
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.submitText}>إنشاء الحساب</Text>
+              )}
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -102,18 +144,26 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: '800', color: '#fff', textAlign: 'center' },
   subtitle: { fontSize: 14, color: 'rgba(255,255,255,0.6)', textAlign: 'center', marginTop: 6 },
   form: { gap: 16 },
-  row: { flexDirection: 'row-reverse', gap: 12 },
+  row: { flexDirection: 'row', gap: 12 },
   half: { flex: 1 },
-  label: { fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.7)', marginBottom: 6, textAlign: 'right' },
+  label: { fontSize: 13, fontWeight: '600', color: 'rgba(255,255,255,0.7)', marginBottom: 6 },
   input: {
-    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)', borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 14,
-    fontSize: 15, color: '#fff', backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: '#fff',
+    backgroundColor: 'rgba(255,255,255,0.08)',
   },
   inputDisabled: { backgroundColor: 'rgba(255,255,255,0.04)', color: 'rgba(255,255,255,0.4)' },
   submitBtn: {
-    backgroundColor: '#1d4ed8', borderRadius: 16, paddingVertical: 16,
-    alignItems: 'center', marginTop: 8,
+    backgroundColor: '#1d4ed8',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
   },
   submitBtnDisabled: { opacity: 0.6 },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },

@@ -79,7 +79,7 @@ export function PropertyCard({
             <Text style={styles.propertyType}>
               {TYPE_LABELS[property.type] || property.type}
             </Text>
-            {property.isFeatured && (
+            {!!property.isFeatured && (
               <View style={styles.featuredBadge}>
                 <Text style={styles.featuredText}>مميز</Text>
               </View>
@@ -126,7 +126,7 @@ export function PropertyCard({
           style={styles.image}
           resizeMode="cover"
         />
-        {property.isFeatured && (
+        {!!property.isFeatured && (
           <View style={styles.featuredBadgeAbsolute}>
             <Text style={styles.featuredText}>⭐ مميز</Text>
           </View>
@@ -211,7 +211,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#0f172a',
-    textAlign: 'right',
     lineHeight: 22,
   },
   cardPrice: {
@@ -219,10 +218,9 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#1d4ed8',
     marginTop: 6,
-    textAlign: 'right',
   },
   cardSpecs: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: 12,
     marginTop: 8,
   },
@@ -230,14 +228,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#64748b',
     marginTop: 6,
-    textAlign: 'right',
   },
 
   // Horizontal card
   horizontalCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     overflow: 'hidden',
     marginBottom: 12,
     shadowColor: '#000',
@@ -257,7 +254,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   horizontalHeader: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
@@ -281,7 +278,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#0f172a',
-    textAlign: 'right',
     flex: 1,
     lineHeight: 20,
   },
@@ -289,10 +285,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     color: '#1d4ed8',
-    textAlign: 'right',
   },
   specs: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     gap: 10,
   },
   specText: {
@@ -302,6 +297,5 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 11,
     color: '#94a3b8',
-    textAlign: 'right',
   },
 });

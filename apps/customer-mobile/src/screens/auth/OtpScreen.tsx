@@ -15,6 +15,7 @@ export default function OtpScreen(): React.ReactElement {
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
+  const [purpose, setPurpose] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
@@ -37,27 +38,22 @@ export default function OtpScreen(): React.ReactElement {
 
     setLoading(true);
     try {
-      // First check if user exists (LOGIN) or not (REGISTER)
-      let purpose = 'LOGIN';
+      let detectedPurpose: 'LOGIN' | 'REGISTER' = 'LOGIN';
       try {
         await api.post('/auth/otp/send', { phone: formattedPhone, purpose: 'LOGIN' });
       } catch (err: any) {
         if (err.response?.status === 404) {
-          purpose = 'REGISTER';
+          detectedPurpose = 'REGISTER';
           await api.post('/auth/otp/send', { phone: formattedPhone, purpose: 'REGISTER' });
         } else {
           throw err;
         }
       }
 
+      setPurpose(detectedPurpose);
       setStep('otp');
       setCountdown(60);
-
-      if (purpose === 'REGISTER') {
-        navigation.navigate('Register', { phone: formattedPhone });
-      } else {
-        setTimeout(() => otpInputRef.current?.focus(), 200);
-      }
+      setTimeout(() => otpInputRef.current?.focus(), 200);
     } catch (err: any) {
       Alert.alert('خطأ', err.response?.data?.message || 'فشل إرسال رمز التحقق');
     } finally {
@@ -73,8 +69,15 @@ export default function OtpScreen(): React.ReactElement {
 
     setLoading(true);
     try {
+      const formattedPhone = phone.startsWith('+') ? phone : `+2${phone}`;
+
+      if (purpose === 'REGISTER') {
+        navigation.navigate('Register', { phone: formattedPhone, otpCode: otp });
+        return;
+      }
+
       const { data } = await api.post('/auth/login', {
-        phone: phone.startsWith('+') ? phone : `+2${phone}`,
+        phone: formattedPhone,
         otpCode: otp,
       });
 
@@ -115,7 +118,6 @@ export default function OtpScreen(): React.ReactElement {
                   onChangeText={setPhone}
                   keyboardType="phone-pad"
                   maxLength={11}
-                  textAlign="right"
                   autoFocus
                 />
               </View>
@@ -221,11 +223,10 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
     color: '#0f172a',
-    textAlign: 'right',
     marginBottom: 10,
   },
   phoneInputRow: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     borderWidth: 1.5,
     borderColor: '#e2e8f0',
     borderRadius: 14,
@@ -254,7 +255,6 @@ const styles = StyleSheet.create({
   hint: {
     fontSize: 13,
     color: '#94a3b8',
-    textAlign: 'right',
     marginTop: 8,
     marginBottom: 24,
   },

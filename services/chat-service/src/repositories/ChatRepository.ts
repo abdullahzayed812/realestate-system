@@ -65,10 +65,12 @@ export class ChatRepository {
               m.id AS msgId, m.content AS msgContent, m.type AS msgType,
               m.created_at AS msgCreatedAt, m.is_read AS msgIsRead,
               u.id AS otherUserId, u.first_name AS otherFirstName,
-              u.last_name AS otherLastName, u.avatar_url AS otherAvatarUrl
+              u.last_name AS otherLastName, u.avatar_url AS otherAvatarUrl,
+              p.title_ar AS propertyTitleAr
        FROM chats c
        LEFT JOIN messages m ON c.last_message_id = m.id
        JOIN users u ON u.id = ${otherField}
+       LEFT JOIN properties p ON p.id = c.property_id
        WHERE ${userField} = ? AND c.is_archived = FALSE
        ORDER BY c.updated_at DESC`,
       [userId],
@@ -79,6 +81,7 @@ export class ChatRepository {
       customerId: row.customerId,
       brokerId: row.brokerId,
       propertyId: row.propertyId,
+      propertyTitleAr: row.propertyTitleAr || null,
       customerUnread: row.customerUnread,
       brokerUnread: row.brokerUnread,
       isArchived: row.isArchived,
@@ -123,7 +126,7 @@ export class ChatRepository {
       );
 
       // Update chat: set last message and increment unread for recipient
-      const { rows: chatRows } = await conn.execute<ChatRow>(
+      const [chatRows] = await conn.execute<ChatRow[]>(
         'SELECT customer_id AS customerId, broker_id AS brokerId FROM chats WHERE id = ?',
         [data.chatId],
       );
@@ -162,11 +165,11 @@ export class ChatRepository {
     const offset = (page - 1) * limit;
 
     const [countResult, dataResult] = await Promise.all([
-      this.db.execute<RowDataPacket>(
+      this.db.query<RowDataPacket>(
         'SELECT COUNT(*) AS total FROM messages WHERE chat_id = ? AND deleted_at IS NULL',
         [chatId],
       ),
-      this.db.execute<MessageRow>(
+      this.db.query<MessageRow>(
         `SELECT id, chat_id AS chatId, sender_id AS senderId, type,
                 content, media_url AS mediaUrl, media_duration AS mediaDuration,
                 property_id AS propertyId, is_read AS isRead, read_at AS readAt,

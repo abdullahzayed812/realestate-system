@@ -197,7 +197,7 @@ export default function MyListingsScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
   header: {
-    flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingVertical: 16, backgroundColor: '#0a1628',
   },
   title: { fontSize: 22, fontWeight: '800', color: '#fff' },
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   },
   addBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
   filterRow: {
-    flexDirection: 'row-reverse', paddingHorizontal: 16, paddingVertical: 10,
+    flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10,
     backgroundColor: '#fff', gap: 8, borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
   },
   filterBtn: {
@@ -224,16 +224,16 @@ const styles = StyleSheet.create({
     shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
   },
-  cardHeader: { flexDirection: 'row-reverse', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
   statusBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
   statusText: { fontSize: 12, fontWeight: '700' },
   propertyType: { fontSize: 12, color: '#94a3b8', fontWeight: '500' },
-  propertyTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', textAlign: 'right', marginBottom: 6 },
-  propertyPrice: { fontSize: 18, fontWeight: '800', color: '#1d4ed8', textAlign: 'right', marginBottom: 2 },
-  propertyArea: { fontSize: 13, color: '#64748b', textAlign: 'right', marginBottom: 12 },
-  stats: { flexDirection: 'row-reverse', gap: 16, marginBottom: 14 },
+  propertyTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a'', marginBottom: 6 },
+  propertyPrice: { fontSize: 18, fontWeight: '800', color: '#1d4ed8'', marginBottom: 2 },
+  propertyArea: { fontSize: 13, color: '#64748b'', marginBottom: 12 },
+  stats: { flexDirection: 'row', gap: 16, marginBottom: 14 },
   statItem: { fontSize: 13, color: '#475569' },
-  actions: { flexDirection: 'row-reverse', gap: 10, borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingTop: 12 },
+  actions: { flexDirection: 'row', gap: 10, borderTopWidth: 1, borderTopColor: '#f1f5f9', paddingTop: 12 },
   editBtn: {
     flex: 1, backgroundColor: '#eff6ff', borderRadius: 12,
     paddingVertical: 10, alignItems: 'center',

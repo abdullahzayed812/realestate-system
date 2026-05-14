@@ -1,13 +1,7 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/AuthController';
 import { validate, authenticate, authRateLimiter } from '@realestate/middlewares';
-import {
-  sendOtpSchema,
-  registerSchema,
-  loginSchema,
-  refreshTokenSchema,
-  updateProfileSchema,
-} from '../dtos/auth.dto';
+import { sendOtpSchema, registerSchema, loginSchema, refreshTokenSchema } from '../dtos/auth.dto';
 
 const router = Router();
 const controller = new AuthController();

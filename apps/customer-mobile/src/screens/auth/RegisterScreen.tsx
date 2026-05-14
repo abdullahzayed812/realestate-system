@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -73,7 +80,6 @@ export default function RegisterScreen(): React.ReactElement {
                   value={firstName}
                   onChangeText={setFirstName}
                   placeholder="محمد"
-                  textAlign="right"
                   autoCapitalize="words"
                 />
               </View>
@@ -84,7 +90,6 @@ export default function RegisterScreen(): React.ReactElement {
                   value={lastName}
                   onChangeText={setLastName}
                   placeholder="أحمد"
-                  textAlign="right"
                   autoCapitalize="words"
                 />
               </View>
@@ -96,7 +101,6 @@ export default function RegisterScreen(): React.ReactElement {
                 style={[styles.input, styles.inputDisabled]}
                 value={phone}
                 editable={false}
-                textAlign="right"
               />
             </View>
 
@@ -132,9 +136,7 @@ export default function RegisterScreen(): React.ReactElement {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.terms}>
-            بالتسجيل، توافق على شروط الاستخدام وسياسة الخصوصية
-          </Text>
+          <Text style={styles.terms}>بالتسجيل، توافق على شروط الاستخدام وسياسة الخصوصية</Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -151,21 +153,29 @@ const styles = StyleSheet.create({
   title: { fontSize: 26, fontWeight: '800', color: '#0a1628', textAlign: 'center' },
   subtitle: { fontSize: 15, color: '#64748b', textAlign: 'center', marginTop: 6 },
   form: { gap: 16 },
-  row: { flexDirection: 'row-reverse', gap: 12 },
+  row: { flexDirection: 'row', gap: 12 },
   halfField: { flex: 1 },
   field: {},
-  label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 6, textAlign: 'right' },
+  label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 6 },
   input: {
-    borderWidth: 1.5, borderColor: '#e2e8f0', borderRadius: 14,
-    paddingHorizontal: 16, paddingVertical: 14,
-    fontSize: 15, color: '#0f172a', backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: '#0f172a',
+    backgroundColor: '#fff',
   },
   inputDisabled: { backgroundColor: '#f1f5f9', color: '#94a3b8' },
   errorBox: { backgroundColor: '#fef2f2', borderRadius: 12, padding: 14 },
-  errorText: { color: '#dc2626', fontSize: 13, textAlign: 'right', fontWeight: '500' },
+  errorText: { color: '#dc2626', fontSize: 13, fontWeight: '500' },
   submitBtn: {
-    backgroundColor: '#0a1628', borderRadius: 16, paddingVertical: 16,
-    alignItems: 'center', marginTop: 8,
+    backgroundColor: '#0a1628',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
   },
   submitBtnDisabled: { opacity: 0.6 },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },

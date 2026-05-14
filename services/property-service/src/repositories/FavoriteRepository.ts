@@ -55,11 +55,11 @@ export class FavoriteRepository {
     const offset = (page - 1) * limit;
 
     const [countResult, dataResult] = await Promise.all([
-      this.db.execute<RowDataPacket>(
+      this.db.query<RowDataPacket>(
         'SELECT COUNT(*) AS total FROM favorites WHERE user_id = ?',
         [userId],
       ),
-      this.db.execute<RowDataPacket>(
+      this.db.query<RowDataPacket>(
         `SELECT p.id, p.broker_id AS brokerId, p.title, p.title_ar AS titleAr,
                 p.type, p.listing_type AS listingType, p.status, p.price, p.currency,
                 p.area, p.bedrooms, p.bathrooms, p.is_featured AS isFeatured,

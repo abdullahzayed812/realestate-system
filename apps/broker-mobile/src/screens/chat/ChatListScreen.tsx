@@ -132,7 +132,7 @@ export default function BrokerChatListScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: {
-    flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 20, paddingVertical: 16, backgroundColor: '#0a1628',
   },
   title: { fontSize: 22, fontWeight: '800', color: '#fff' },
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   totalUnreadText: { color: '#fff', fontSize: 12, fontWeight: '800' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   chatItem: {
-    flexDirection: 'row-reverse', alignItems: 'center',
+    flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 20, paddingVertical: 14, gap: 12,
   },
   avatarContainer: { position: 'relative' },
@@ -160,11 +160,11 @@ const styles = StyleSheet.create({
   },
   unreadText: { color: '#fff', fontSize: 11, fontWeight: '800' },
   chatInfo: { flex: 1 },
-  topRow: { flexDirection: 'row-reverse', justifyContent: 'space-between' },
+  topRow: { flexDirection: 'row', justifyContent: 'space-between' },
   userName: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
   timeText: { fontSize: 12, color: '#94a3b8' },
-  propertyName: { fontSize: 12, color: '#64748b', marginTop: 2, textAlign: 'right' },
-  lastMsg: { fontSize: 13, color: '#94a3b8', marginTop: 3, textAlign: 'right' },
+  propertyName: { fontSize: 12, color: '#64748b', marginTop: 2' },
+  lastMsg: { fontSize: 13, color: '#94a3b8', marginTop: 3' },
   lastMsgUnread: { color: '#374151', fontWeight: '600' },
   separator: { height: 1, backgroundColor: '#f8fafc', marginHorizontal: 20 },
   emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 100 },

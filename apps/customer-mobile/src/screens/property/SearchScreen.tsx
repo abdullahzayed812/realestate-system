@@ -1,7 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  FlatList, ScrollView, ActivityIndicator, Dimensions,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  ActivityIndicator,
+  // Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
@@ -9,7 +16,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { api } from '../../services/api';
 import { PropertyCard } from '../../components/property/PropertyCard';
 
-const { width } = Dimensions.get('window');
+// const { width } = Dimensions.get('window');
 
 const TYPES = [
   { key: '', label: 'الكل' },
@@ -63,7 +70,11 @@ export default function SearchScreen(): React.ReactElement {
   const [page, setPage] = useState(1);
 
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ['properties', 'search', { query, typeFilter, listingFilter, sortBy, minPrice, maxPrice, minArea, page }],
+    queryKey: [
+      'properties',
+      'search',
+      { query, typeFilter, listingFilter, sortBy, minPrice, maxPrice, minArea, page },
+    ],
     queryFn: async () => {
       const params = new URLSearchParams({ page: String(page), limit: '15' });
       if (query) params.append('search', query);
@@ -100,11 +111,15 @@ export default function SearchScreen(): React.ReactElement {
             onSubmitEditing={handleSearch}
             placeholder="ابحث بالمنطقة، النوع..."
             placeholderTextColor="#94a3b8"
-            textAlign="right"
             returnKeyType="search"
           />
           {query.length > 0 && (
-            <TouchableOpacity onPress={() => { setQuery(''); setPage(1); }}>
+            <TouchableOpacity
+              onPress={() => {
+                setQuery('');
+                setPage(1);
+              }}
+            >
               <Text style={{ color: '#94a3b8', fontSize: 18 }}>✕</Text>
             </TouchableOpacity>
           )}
@@ -128,7 +143,10 @@ export default function SearchScreen(): React.ReactElement {
           <TouchableOpacity
             key={t.key}
             style={[styles.chip, typeFilter === t.key && styles.chipActive]}
-            onPress={() => { setTypeFilter(t.key); setPage(1); }}
+            onPress={() => {
+              setTypeFilter(t.key);
+              setPage(1);
+            }}
           >
             <Text style={[styles.chipText, typeFilter === t.key && styles.chipTextActive]}>
               {t.label}
@@ -146,9 +164,17 @@ export default function SearchScreen(): React.ReactElement {
               <TouchableOpacity
                 key={lt.key}
                 style={[styles.filterOption, listingFilter === lt.key && styles.filterOptionActive]}
-                onPress={() => { setListingFilter(lt.key); setPage(1); }}
+                onPress={() => {
+                  setListingFilter(lt.key);
+                  setPage(1);
+                }}
               >
-                <Text style={[styles.filterOptionText, listingFilter === lt.key && styles.filterOptionTextActive]}>
+                <Text
+                  style={[
+                    styles.filterOptionText,
+                    listingFilter === lt.key && styles.filterOptionTextActive,
+                  ]}
+                >
                   {lt.label}
                 </Text>
               </TouchableOpacity>
@@ -163,7 +189,6 @@ export default function SearchScreen(): React.ReactElement {
               onChangeText={setMinPrice}
               placeholder="الحد الأدنى"
               keyboardType="numeric"
-              textAlign="right"
               placeholderTextColor="#94a3b8"
             />
             <Text style={{ color: '#94a3b8' }}>—</Text>
@@ -173,7 +198,6 @@ export default function SearchScreen(): React.ReactElement {
               onChangeText={setMaxPrice}
               placeholder="الحد الأقصى"
               keyboardType="numeric"
-              textAlign="right"
               placeholderTextColor="#94a3b8"
             />
           </View>
@@ -184,9 +208,17 @@ export default function SearchScreen(): React.ReactElement {
               <TouchableOpacity
                 key={s.key}
                 style={[styles.filterOption, sortBy === s.key && styles.filterOptionActive]}
-                onPress={() => { setSortBy(s.key); setPage(1); }}
+                onPress={() => {
+                  setSortBy(s.key);
+                  setPage(1);
+                }}
               >
-                <Text style={[styles.filterOptionText, sortBy === s.key && styles.filterOptionTextActive]}>
+                <Text
+                  style={[
+                    styles.filterOptionText,
+                    sortBy === s.key && styles.filterOptionTextActive,
+                  ]}
+                >
                   {s.label}
                 </Text>
               </TouchableOpacity>
@@ -210,7 +242,7 @@ export default function SearchScreen(): React.ReactElement {
         <FlatList
           data={properties}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 16, gap: 12 }}
+          contentContainerStyle={{ padding: 16, paddingBottom: 100, gap: 12 }}
           renderItem={({ item }) => (
             <PropertyCard
               property={item}
@@ -238,51 +270,89 @@ export default function SearchScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
   header: {
-    flexDirection: 'row-reverse', alignItems: 'center', paddingHorizontal: 16,
-    paddingVertical: 12, backgroundColor: '#fff', gap: 10,
-    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    gap: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
   backBtn: { padding: 4 },
   backIcon: { fontSize: 22, color: '#0a1628' },
   searchBar: {
-    flex: 1, flexDirection: 'row-reverse', alignItems: 'center',
-    backgroundColor: '#f1f5f9', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, gap: 8,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f1f5f9',
+    borderRadius: 14,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
   },
   searchInput: { flex: 1, fontSize: 14, color: '#0f172a' },
   filterBtn: {
-    width: 44, height: 44, borderRadius: 14,
-    backgroundColor: '#f1f5f9', alignItems: 'center', justifyContent: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: '#f1f5f9',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   filterBtnActive: { backgroundColor: '#eff6ff', borderWidth: 1.5, borderColor: '#1d4ed8' },
-  typeFilter: { maxHeight: 52, paddingVertical: 8, backgroundColor: '#fff' },
+  typeFilter: { flexShrink: 0, maxHeight: 51, paddingVertical: 8, backgroundColor: '#fff' },
   chip: {
-    paddingHorizontal: 16, paddingVertical: 6, borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
     backgroundColor: '#f1f5f9',
   },
   chipActive: { backgroundColor: '#0a1628' },
   chipText: { fontSize: 13, color: '#475569', fontWeight: '600' },
   chipTextActive: { color: '#fff' },
   filtersPanel: {
-    backgroundColor: '#fff', padding: 16,
-    borderBottomWidth: 1, borderBottomColor: '#f1f5f9',
+    backgroundColor: '#fff',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f1f5f9',
   },
-  filterGroupLabel: { fontSize: 13, fontWeight: '700', color: '#374151', textAlign: 'right', marginBottom: 8, marginTop: 12 },
-  filterRow: { flexDirection: 'row-reverse', flexWrap: 'wrap', gap: 8 },
+  filterGroupLabel: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#374151',
+    marginBottom: 8,
+    marginTop: 12,
+  },
+  filterRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   filterOption: {
-    paddingHorizontal: 14, paddingVertical: 7, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#fff',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
   },
   filterOptionActive: { borderColor: '#1d4ed8', backgroundColor: '#eff6ff' },
   filterOptionText: { fontSize: 12, color: '#64748b', fontWeight: '600' },
   filterOptionTextActive: { color: '#1d4ed8' },
-  priceRow: { flexDirection: 'row-reverse', gap: 10, alignItems: 'center' },
+  priceRow: { flexDirection: 'row', gap: 10, alignItems: 'center' },
   priceInput: {
-    flex: 1, borderWidth: 1.5, borderColor: '#e2e8f0', borderRadius: 12,
-    paddingHorizontal: 12, paddingVertical: 9, fontSize: 13, color: '#0f172a',
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    fontSize: 13,
+    color: '#0f172a',
   },
   resultsHeader: {
-    flexDirection: 'row-reverse', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   resultsCount: { fontSize: 13, fontWeight: '600', color: '#64748b' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
