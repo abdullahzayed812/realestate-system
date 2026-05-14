@@ -20,6 +20,7 @@ const ChatStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 const Root = createStackNavigator();
 
+import WelcomeScreen from '../screens/auth/WelcomeScreen';
 import OtpScreen from '../screens/auth/OtpScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import HomeScreen from '../screens/home/HomeScreen';
@@ -135,6 +136,7 @@ function MainTabNavigator(): React.ReactElement {
 function AuthNavigator(): React.ReactElement {
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Welcome" component={WelcomeScreen} />
       <AuthStack.Screen name="Otp" component={OtpScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
     </AuthStack.Navigator>

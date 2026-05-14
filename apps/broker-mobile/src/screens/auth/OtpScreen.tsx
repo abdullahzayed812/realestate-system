@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
+  KeyboardAvoidingView, Platform, ActivityIndicator, Alert, I18nManager,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
@@ -12,14 +12,16 @@ type Step = 'PHONE' | 'OTP';
 
 export default function OtpScreen(): React.ReactElement {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const { setAuth } = useAuthStore();
+
+  const intent: 'login' | 'register' = route.params?.intent ?? 'login';
 
   const [step, setStep] = useState<Step>('PHONE');
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
-  const [isNewUser, setIsNewUser] = useState(false);
   const inputRefs = useRef<(TextInput | null)[]>([]);
 
   useEffect(() => {
@@ -30,24 +32,26 @@ export default function OtpScreen(): React.ReactElement {
   }, [countdown]);
 
   const handleSendOtp = async () => {
-    if (!phone.trim() || phone.length < 10) {
+    const formattedPhone = phone.startsWith('+') ? phone : `+2${phone}`;
+    if (formattedPhone.length < 12) {
       Alert.alert('خطأ', 'أدخل رقم هاتف صحيح');
       return;
     }
     setLoading(true);
     try {
-      let newUser = false;
-      try {
-        await api.post('/auth/otp/send', { phone, purpose: 'LOGIN' });
-      } catch (err: any) {
-        if (err?.response?.status === 404) {
-          newUser = true;
-          await api.post('/auth/otp/send', { phone, purpose: 'REGISTER' });
-        } else {
+      if (intent === 'login') {
+        try {
+          await api.post('/auth/otp/send', { phone: formattedPhone, purpose: 'LOGIN' });
+        } catch (err: any) {
+          if (err?.response?.status === 404) {
+            Alert.alert('خطأ', 'هذا الرقم غير مسجل. أنشئ حساب وسيط أولاً');
+            return;
+          }
           throw err;
         }
+      } else {
+        await api.post('/auth/otp/send', { phone: formattedPhone, purpose: 'REGISTER' });
       }
-      setIsNewUser(newUser);
       setStep('OTP');
       setCountdown(60);
     } catch (err: any) {
@@ -76,12 +80,14 @@ export default function OtpScreen(): React.ReactElement {
     const otpCode = otp.join('');
     if (otpCode.length < 6) return;
 
+    const formattedPhone = phone.startsWith('+') ? phone : `+2${phone}`;
+
     setLoading(true);
     try {
-      if (isNewUser) {
-        navigation.navigate('Register', { phone, otpCode });
+      if (intent === 'register') {
+        navigation.navigate('Register', { phone: formattedPhone, otpCode });
       } else {
-        const { data } = await api.post('/auth/login', { phone, otpCode });
+        const { data } = await api.post('/auth/login', { phone: formattedPhone, otpCode });
         if (data.data.user.role !== 'BROKER' && data.data.user.role !== 'ADMIN') {
           Alert.alert('غير مصرح', 'هذا التطبيق للوسطاء العقاريين فقط');
           return;
@@ -137,7 +143,7 @@ export default function OtpScreen(): React.ReactElement {
             </View>
           ) : (
             <View style={styles.form}>
-              <View style={styles.otpContainer}>
+              <View style={[styles.otpContainer, I18nManager.isRTL && { flexDirection: 'row-reverse' }]}>
                 {otp.map((digit, i) => (
                   <TextInput
                     key={i}

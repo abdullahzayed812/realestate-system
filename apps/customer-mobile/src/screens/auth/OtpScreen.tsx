@@ -4,18 +4,20 @@ import {
   KeyboardAvoidingView, Platform, Alert, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
 export default function OtpScreen(): React.ReactElement {
   const navigation = useNavigation<any>();
+  const route = useRoute<any>();
   const { setAuth } = useAuthStore();
+
+  const intent: 'login' | 'register' = route.params?.intent ?? 'login';
 
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
   const [step, setStep] = useState<'phone' | 'otp'>('phone');
-  const [purpose, setPurpose] = useState<'LOGIN' | 'REGISTER'>('LOGIN');
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
@@ -38,19 +40,20 @@ export default function OtpScreen(): React.ReactElement {
 
     setLoading(true);
     try {
-      let detectedPurpose: 'LOGIN' | 'REGISTER' = 'LOGIN';
-      try {
-        await api.post('/auth/otp/send', { phone: formattedPhone, purpose: 'LOGIN' });
-      } catch (err: any) {
-        if (err.response?.status === 404) {
-          detectedPurpose = 'REGISTER';
-          await api.post('/auth/otp/send', { phone: formattedPhone, purpose: 'REGISTER' });
-        } else {
+      if (intent === 'login') {
+        try {
+          await api.post('/auth/otp/send', { phone: formattedPhone, purpose: 'LOGIN' });
+        } catch (err: any) {
+          if (err.response?.status === 404) {
+            Alert.alert('خطأ', 'هذا الرقم غير مسجل. أنشئ حساباً جديداً أولاً');
+            return;
+          }
           throw err;
         }
+      } else {
+        await api.post('/auth/otp/send', { phone: formattedPhone, purpose: 'REGISTER' });
       }
 
-      setPurpose(detectedPurpose);
       setStep('otp');
       setCountdown(60);
       setTimeout(() => otpInputRef.current?.focus(), 200);
@@ -71,7 +74,7 @@ export default function OtpScreen(): React.ReactElement {
     try {
       const formattedPhone = phone.startsWith('+') ? phone : `+2${phone}`;
 
-      if (purpose === 'REGISTER') {
+      if (intent === 'register') {
         navigation.navigate('Register', { phone: formattedPhone, otpCode: otp });
         return;
       }

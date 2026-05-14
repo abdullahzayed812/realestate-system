@@ -25,7 +25,6 @@ export default function RegisterScreen(): React.ReactElement {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [licenseNumber, setLicenseNumber] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
@@ -106,16 +105,6 @@ export default function RegisterScreen(): React.ReactElement {
                 keyboardType="email-address"
                 autoCapitalize="none"
                 textAlign="left"
-              />
-            </View>
-
-            <View>
-              <Text style={styles.label}>رقم الترخيص (اختياري)</Text>
-              <TextInput
-                style={styles.input}
-                value={licenseNumber}
-                onChangeText={setLicenseNumber}
-                placeholder="LIC-2024-XXX"
               />
             </View>
 

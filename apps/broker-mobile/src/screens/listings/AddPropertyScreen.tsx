@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  ScrollView, KeyboardAvoidingView, Platform, ActivityIndicator, Alert,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -9,10 +17,14 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../services/api';
 
 const PROPERTY_TYPES = [
-  { key: 'APARTMENT', label: 'شقة' }, { key: 'VILLA', label: 'فيلا' },
-  { key: 'LAND', label: 'أرض' }, { key: 'OFFICE', label: 'مكتب' },
-  { key: 'STUDIO', label: 'استوديو' }, { key: 'WAREHOUSE', label: 'مخزن' },
-  { key: 'FACTORY', label: 'مصنع' }, { key: 'SHOP', label: 'محل تجاري' },
+  { key: 'APARTMENT', label: 'شقة' },
+  { key: 'VILLA', label: 'فيلا' },
+  { key: 'LAND', label: 'أرض' },
+  { key: 'OFFICE', label: 'مكتب' },
+  { key: 'STUDIO', label: 'استوديو' },
+  { key: 'WAREHOUSE', label: 'مخزن' },
+  { key: 'FACTORY', label: 'مصنع' },
+  { key: 'SHOP', label: 'محل تجاري' },
 ];
 
 const LISTING_TYPES = [
@@ -50,13 +62,23 @@ export default function AddPropertyScreen(): React.ReactElement {
   const isEdit = !!route.params?.propertyId;
 
   const [form, setForm] = useState<FormState>({
-    titleAr: '', descriptionAr: '', type: 'APARTMENT', listingType: 'SALE',
-    price: '', area: '', bedrooms: '', bathrooms: '', floor: '',
-    totalFloors: '', furnished: '', address: '', district: '',
+    titleAr: '',
+    descriptionAr: '',
+    type: 'APARTMENT',
+    listingType: 'SALE',
+    price: '',
+    area: '',
+    bedrooms: '',
+    bathrooms: '',
+    floor: '',
+    totalFloors: '',
+    furnished: '',
+    address: '',
+    district: '',
   });
 
   const update = (key: keyof FormState, value: string) => {
-    setForm(prev => ({ ...prev, [key]: value }));
+    setForm((prev) => ({ ...prev, [key]: value }));
   };
 
   const createMutation = useMutation({
@@ -108,7 +130,10 @@ export default function AddPropertyScreen(): React.ReactElement {
         <View style={{ width: 40 }} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
           {/* Basic Info */}
           <View style={styles.section}>
@@ -140,15 +165,21 @@ export default function AddPropertyScreen(): React.ReactElement {
           {/* Type */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>نوع العقار</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginHorizontal: -20 }}
-              contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginHorizontal: -20 }}
+              contentContainerStyle={{ paddingHorizontal: 20, gap: 8 }}
+            >
               {PROPERTY_TYPES.map((t) => (
                 <TouchableOpacity
                   key={t.key}
                   style={[styles.chip, form.type === t.key && styles.chipActive]}
                   onPress={() => update('type', t.key)}
                 >
-                  <Text style={[styles.chipText, form.type === t.key && styles.chipTextActive]}>{t.label}</Text>
+                  <Text style={[styles.chipText, form.type === t.key && styles.chipTextActive]}>
+                    {t.label}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
@@ -161,7 +192,14 @@ export default function AddPropertyScreen(): React.ReactElement {
                   style={[styles.optionBtn, form.listingType === t.key && styles.optionBtnActive]}
                   onPress={() => update('listingType', t.key)}
                 >
-                  <Text style={[styles.optionBtnText, form.listingType === t.key && styles.optionBtnTextActive]}>{t.label}</Text>
+                  <Text
+                    style={[
+                      styles.optionBtnText,
+                      form.listingType === t.key && styles.optionBtnTextActive,
+                    ]}
+                  >
+                    {t.label}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -208,7 +246,14 @@ export default function AddPropertyScreen(): React.ReactElement {
                   style={[styles.optionBtn, form.furnished === f.key && styles.optionBtnActive]}
                   onPress={() => update('furnished', form.furnished === f.key ? '' : f.key)}
                 >
-                  <Text style={[styles.optionBtnText, form.furnished === f.key && styles.optionBtnTextActive]}>{f.label}</Text>
+                  <Text
+                    style={[
+                      styles.optionBtnText,
+                      form.furnished === f.key && styles.optionBtnTextActive,
+                    ]}
+                  >
+                    {f.label}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -241,7 +286,10 @@ export default function AddPropertyScreen(): React.ReactElement {
 
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.submitBtn, (!isValid || createMutation.isPending) && styles.submitBtnDisabled]}
+          style={[
+            styles.submitBtn,
+            (!isValid || createMutation.isPending) && styles.submitBtnDisabled,
+          ]}
           onPress={() => createMutation.mutate()}
           disabled={!isValid || createMutation.isPending}
         >
@@ -259,32 +307,49 @@ export default function AddPropertyScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 14, backgroundColor: '#0a1628',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: '#0a1628',
   },
   backBtn: { padding: 4, width: 40 },
   backIcon: { fontSize: 22, color: '#fff' },
   title: { fontSize: 18, fontWeight: '700', color: '#fff' },
   scroll: { flex: 1 },
   section: { backgroundColor: '#fff', padding: 20, marginBottom: 8 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a'', marginBottom: 14 },
-  label: { fontSize: 13, fontWeight: '600', color: '#374151'', marginBottom: 6, marginTop: 12 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 14 },
+  label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6, marginTop: 12 },
   input: {
-    borderWidth: 1.5, borderColor: '#e2e8f0', borderRadius: 14,
-    paddingHorizontal: 14, paddingVertical: 12, fontSize: 14,
-    color: '#0f172a', backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 14,
+    color: '#0f172a',
+    backgroundColor: '#fff',
   },
   chip: {
-    paddingHorizontal: 14, paddingVertical: 8, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#fff',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
   },
   chipActive: { backgroundColor: '#0a1628', borderColor: '#0a1628' },
   chipText: { fontSize: 13, color: '#475569', fontWeight: '600' },
   chipTextActive: { color: '#fff' },
   row: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   optionBtn: {
-    paddingHorizontal: 14, paddingVertical: 9, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#e2e8f0', backgroundColor: '#fff',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    backgroundColor: '#fff',
   },
   optionBtnActive: { backgroundColor: '#1d4ed8', borderColor: '#1d4ed8' },
   optionBtnText: { fontSize: 13, color: '#64748b', fontWeight: '600' },
@@ -292,13 +357,18 @@ const styles = StyleSheet.create({
   gridRow: { flexDirection: 'row', gap: 12 },
   gridCell: { flex: 1 },
   footer: {
-    backgroundColor: '#fff', paddingHorizontal: 20,
-    paddingBottom: Platform.OS === 'ios' ? 32 : 20, paddingTop: 12,
-    borderTopWidth: 1, borderTopColor: '#f1f5f9',
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingBottom: Platform.OS === 'ios' ? 32 : 20,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
   },
   submitBtn: {
-    backgroundColor: '#1d4ed8', borderRadius: 16,
-    paddingVertical: 16, alignItems: 'center',
+    backgroundColor: '#1d4ed8',
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
   },
   submitBtnDisabled: { opacity: 0.5 },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },

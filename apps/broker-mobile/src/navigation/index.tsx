@@ -21,6 +21,7 @@ import RegisterScreen from '../screens/auth/RegisterScreen';
 import MyListingsScreen from '../screens/listings/MyListingsScreen';
 import AddPropertyScreen from '../screens/listings/AddPropertyScreen';
 import BookingRequestsScreen from '../screens/bookings/BookingRequestsScreen';
+import WelcomeScreen from '../screens/auth/WelcomeScreen';
 import ChatListScreen from '../screens/chat/ChatListScreen';
 import ChatScreen from '../screens/chat/ChatScreen';
 import BrokerProfileScreen from '../screens/profile/ProfileScreen';
@@ -124,6 +125,7 @@ function MainTabNavigator() {
 function AuthNavigator() {
   return (
     <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+      <AuthStack.Screen name="Welcome" component={WelcomeScreen} />
       <AuthStack.Screen name="Otp" component={OtpScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
     </AuthStack.Navigator>
@@ -200,19 +202,19 @@ const tabStyles = StyleSheet.create({
   },
   itemActive: {
     backgroundColor: '#1d4ed8',
-    flex: 1.4,
+    flex: 1.6,
   },
   icon: {
-    fontSize: 18,
+    fontSize: 20,
   },
   label: {
-    fontSize: 9,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
   labelActive: {
     color: '#ffffff',
   },
   labelInactive: {
-    color: 'rgba(255,255,255,0.4)',
+    color: 'rgba(255,255,255,0.5)',
   },
 });

@@ -1,73 +1,136 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
   Dimensions,
+  StatusBar,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
 const { width } = Dimensions.get('window');
+const CARD_WIDTH = (width - 52) / 2; // 20px padding each side + 12px gap
 
-interface StatItem {
-  label: string;
-  value: number;
-  icon: string;
-  color: string;
-  bg: string;
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return 'صباح الخير';
+  if (h < 17) return 'مساء الخير';
+  return 'مساء النور';
+}
+
+interface BrokerStats {
+  totalProperties: number;
+  activeProperties: number;
+  totalViews: number;
+  pendingBookings: number;
+  totalBookings: number;
+  profileCompletion: number;
+  rating: number;
+  totalDeals: number;
 }
 
 export default function BrokerDashboard(): React.ReactElement {
   const navigation = useNavigation<any>();
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
+  const [refreshing, setRefreshing] = useState(false);
 
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<BrokerStats>({
     queryKey: ['broker', 'stats'],
     queryFn: async () => {
       const { data } = await api.get('/broker/stats');
       return data.data;
     },
     placeholderData: {
-      totalProperties: 12,
-      activeProperties: 8,
-      totalViews: 1420,
-      pendingBookings: 3,
-      totalBookings: 28,
-      profileCompletion: 85,
-      rating: 4.8,
-      totalDeals: 14,
+      totalProperties: 0,
+      activeProperties: 0,
+      totalViews: 0,
+      pendingBookings: 0,
+      totalBookings: 0,
+      profileCompletion: 0,
+      rating: 0,
+      totalDeals: 0,
     },
   });
 
-  const statItems: StatItem[] = [
-    { label: 'العقارات النشطة', value: stats?.activeProperties || 0, icon: '🏠', color: '#1d4ed8', bg: '#eff6ff' },
-    { label: 'المشاهدات', value: stats?.totalViews || 0, icon: '👁', color: '#059669', bg: '#ecfdf5' },
-    { label: 'الحجوزات المعلقة', value: stats?.pendingBookings || 0, icon: '📅', color: '#d97706', bg: '#fffbeb' },
-    { label: 'إجمالي الصفقات', value: stats?.totalDeals || 0, icon: '🤝', color: '#7c3aed', bg: '#f5f3ff' },
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await queryClient.invalidateQueries({ queryKey: ['broker', 'stats'] });
+    setRefreshing(false);
+  }, [queryClient]);
+
+  const statItems = [
+    {
+      label: 'العقارات النشطة',
+      value: stats?.activeProperties ?? 0,
+      icon: '🏠',
+      color: '#1d4ed8',
+      bg: '#eff6ff',
+    },
+    {
+      label: 'المشاهدات',
+      value: stats?.totalViews ?? 0,
+      icon: '👁',
+      color: '#059669',
+      bg: '#ecfdf5',
+    },
+    {
+      label: 'حجوزات معلقة',
+      value: stats?.pendingBookings ?? 0,
+      icon: '📅',
+      color: '#d97706',
+      bg: '#fffbeb',
+    },
+    {
+      label: 'إجمالي الصفقات',
+      value: stats?.totalDeals ?? 0,
+      icon: '🤝',
+      color: '#7c3aed',
+      bg: '#f5f3ff',
+    },
   ];
 
   const quickActions = [
-    { label: 'إضافة عقار', icon: '➕', screen: 'AddProperty' },
-    { label: 'المحادثات', icon: '💬', screen: 'Leads' },
-    { label: 'الحجوزات', icon: '📅', screen: 'Bookings' },
-    { label: 'عقاراتي', icon: '🏘', screen: 'MyProperties' },
+    {
+      label: 'إضافة عقار',
+      icon: '➕',
+      onPress: () => navigation.navigate('listings', { screen: 'AddProperty' }),
+    },
+    { label: 'المحادثات', icon: '💬', onPress: () => navigation.navigate('chat') },
+    { label: 'الحجوزات', icon: '📅', onPress: () => navigation.navigate('bookings') },
+    { label: 'عقاراتي', icon: '🏘', onPress: () => navigation.navigate('listings') },
   ];
 
+  const completion = stats?.profileCompletion ?? 0;
+
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <StatusBar barStyle="light-content" backgroundColor="#0a1628" />
+
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#fff" />
+        }
+        contentContainerStyle={styles.scrollContent}
+      >
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity style={styles.avatar}>
-              <Text style={{ fontSize: 28 }}>👤</Text>
-            </TouchableOpacity>
+          <View style={styles.avatar}>
+            <Text style={{ fontSize: 26 }}>👤</Text>
           </View>
-          <View style={styles.headerCenter}>
-            <Text style={styles.greeting}>مساء الخير،</Text>
-            <Text style={styles.userName}>{user?.firstName} {user?.lastName}</Text>
+          <View style={styles.headerText}>
+            <Text style={styles.greeting}>{getGreeting()}،</Text>
+            <Text style={styles.userName} numberOfLines={1}>
+              {user?.firstName} {user?.lastName}
+            </Text>
           </View>
           <TouchableOpacity style={styles.notifBtn}>
             <Text style={{ fontSize: 22 }}>🔔</Text>
@@ -75,19 +138,28 @@ export default function BrokerDashboard(): React.ReactElement {
           </TouchableOpacity>
         </View>
 
-        {/* Rating Banner */}
-        <View style={styles.ratingBanner}>
-          <Text style={styles.ratingText}>⭐ تقييمك: {stats?.rating || 0}</Text>
-          <Text style={styles.ratingSubtext}>{stats?.totalDeals || 0} صفقة مكتملة</Text>
+        {/* Rating + deals banner */}
+        <View style={styles.banner}>
+          <View style={styles.bannerItem}>
+            <Text style={styles.bannerValue}>⭐ {Number(stats?.rating ?? 0).toFixed(1)}</Text>
+            <Text style={styles.bannerLabel}>التقييم</Text>
+          </View>
+          <View style={styles.bannerDivider} />
+          <View style={styles.bannerItem}>
+            <Text style={styles.bannerValue}>{stats?.totalDeals ?? 0}</Text>
+            <Text style={styles.bannerLabel}>صفقة مكتملة</Text>
+          </View>
+          <View style={styles.bannerDivider} />
+          <View style={styles.bannerItem}>
+            <Text style={styles.bannerValue}>{stats?.totalProperties ?? 0}</Text>
+            <Text style={styles.bannerLabel}>إجمالي العقارات</Text>
+          </View>
         </View>
 
-        {/* Stats Grid */}
+        {/* Stats grid */}
         <View style={styles.statsGrid}>
           {statItems.map((stat) => (
-            <View
-              key={stat.label}
-              style={[styles.statCard, { backgroundColor: stat.bg }]}
-            >
+            <View key={stat.label} style={[styles.statCard, { backgroundColor: stat.bg }]}>
               <Text style={styles.statIcon}>{stat.icon}</Text>
               <Text style={[styles.statValue, { color: stat.color }]}>
                 {stat.value.toLocaleString('ar-EG')}
@@ -105,7 +177,8 @@ export default function BrokerDashboard(): React.ReactElement {
               <TouchableOpacity
                 key={action.label}
                 style={styles.actionCard}
-                onPress={() => navigation.navigate(action.screen)}
+                onPress={action.onPress}
+                activeOpacity={0.75}
               >
                 <Text style={styles.actionIcon}>{action.icon}</Text>
                 <Text style={styles.actionLabel}>{action.label}</Text>
@@ -116,26 +189,19 @@ export default function BrokerDashboard(): React.ReactElement {
 
         {/* Profile completion */}
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>اكتمال الملف الشخصي</Text>
           <View style={styles.progressCard}>
             <View style={styles.progressHeader}>
-              <Text style={styles.progressTitle}>اكتمال الملف الشخصي</Text>
-              <Text style={styles.progressPercent}>{stats?.profileCompletion || 0}%</Text>
+              <Text style={styles.progressHint}>أكمل ملفك لزيادة ظهورك للعملاء</Text>
+              <Text style={styles.progressPercent}>{completion}%</Text>
             </View>
             <View style={styles.progressTrack}>
-              <View
-                style={[
-                  styles.progressFill,
-                  { width: `${stats?.profileCompletion || 0}%` },
-                ]}
-              />
+              <View style={[styles.progressFill, { width: `${completion}%` }]} />
             </View>
-            <Text style={styles.progressHint}>
-              أكمل ملفك الشخصي لزيادة ظهورك للعملاء
-            </Text>
           </View>
         </View>
 
-        <View style={{ height: 30 }} />
+        <View style={{ height: 120 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -143,87 +209,125 @@ export default function BrokerDashboard(): React.ReactElement {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8fafc' },
+  scrollContent: { flexGrow: 1 },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#0a1628',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    backgroundColor: '#0a1628',
     gap: 12,
   },
-  headerLeft: {},
   avatar: {
-    width: 48, height: 48, borderRadius: 24,
-    backgroundColor: '#1d4ed8', alignItems: 'center', justifyContent: 'center',
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#DDD',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  headerCenter: { flex: 1 },
+  headerText: { flex: 1 },
   greeting: { fontSize: 13, color: '#94a3b8' },
-  userName: { fontSize: 18, fontWeight: '800', color: '#fff'' },
-  notifBtn: { position: 'relative' },
+  userName: { textAlign: 'left', fontSize: 18, fontWeight: '800', color: '#fff', marginTop: 1 },
+  notifBtn: { position: 'relative', padding: 4 },
   notifDot: {
-    position: 'absolute', top: 0, right: 0,
-    width: 9, height: 9, borderRadius: 4.5,
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
     backgroundColor: '#ef4444',
+    borderWidth: 1.5,
+    borderColor: '#0a1628',
   },
-  ratingBanner: {
+
+  banner: {
+    flexDirection: 'row-reverse',
     backgroundColor: '#1d4ed8',
     marginHorizontal: 20,
-    marginTop: 16,
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: 'row',
+    marginTop: 20,
+    borderRadius: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 8,
     alignItems: 'center',
-    justifyContent: 'space-between',
+    shadowColor: '#1d4ed8',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
-  ratingText: { fontSize: 18, fontWeight: '700', color: '#fff' },
-  ratingSubtext: { fontSize: 13, color: 'rgba(255,255,255,0.75)' },
+  bannerItem: { flex: 1, alignItems: 'center' },
+  bannerValue: { fontSize: 20, fontWeight: '800', color: '#fff' },
+  bannerLabel: { fontSize: 11, color: 'rgba(255,255,255,0.7)', marginTop: 3, fontWeight: '500' },
+  bannerDivider: { width: 1, height: 36, backgroundColor: 'rgba(255,255,255,0.25)' },
+
   statsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 12,
-    marginTop: 16,
-    gap: 8,
+    paddingHorizontal: 20,
+    marginTop: 20,
+    gap: 12,
   },
   statCard: {
-    width: (width - 40) / 2,
-    marginHorizontal: 4,
-    borderRadius: 16,
-    padding: 16,
-    alignItems: 'flex-end',
-  },
-  statIcon: { fontSize: 28, marginBottom: 8 },
-  statValue: { fontSize: 26, fontWeight: '800' },
-  statLabel: { fontSize: 12, color: '#64748b', marginTop: 2' },
-  section: { paddingHorizontal: 20, marginTop: 20 },
-  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 14' },
-  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  actionCard: {
-    width: (width - 60) / 2,
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    alignItems: 'center',
+    width: CARD_WIDTH,
+    borderRadius: 20,
+    padding: 18,
+    alignItems: 'flex-start',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
-  actionIcon: { fontSize: 34, marginBottom: 8 },
+  statIcon: { fontSize: 30, marginBottom: 10 },
+  statValue: { fontSize: 28, fontWeight: '800' },
+  statLabel: { fontSize: 12, color: '#64748b', marginTop: 3 },
+
+  section: { paddingHorizontal: 20, marginTop: 24 },
+  sectionTitle: { fontSize: 18, fontWeight: '700', color: '#0f172a', marginBottom: 14 },
+
+  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
+  actionCard: {
+    width: CARD_WIDTH,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingVertical: 22,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  actionIcon: { fontSize: 36, marginBottom: 10 },
   actionLabel: { fontSize: 14, fontWeight: '700', color: '#0f172a', textAlign: 'center' },
+
   progressCard: {
-    backgroundColor: '#fff', borderRadius: 16, padding: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 3,
   },
   progressHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
   },
-  progressTitle: { fontSize: 15, fontWeight: '700', color: '#0f172a' },
-  progressPercent: { fontSize: 18, fontWeight: '800', color: '#1d4ed8' },
+  progressHint: { fontSize: 13, color: '#64748b', flex: 1 },
+  progressPercent: { fontSize: 20, fontWeight: '800', color: '#1d4ed8', marginRight: 4 },
   progressTrack: {
-    height: 8, backgroundColor: '#f1f5f9', borderRadius: 4, overflow: 'hidden', marginBottom: 8,
+    height: 10,
+    backgroundColor: '#f1f5f9',
+    borderRadius: 5,
+    overflow: 'hidden',
   },
-  progressFill: { height: '100%', backgroundColor: '#1d4ed8', borderRadius: 4 },
-  progressHint: { fontSize: 12, color: '#64748b'' },
+  progressFill: { height: '100%', backgroundColor: '#1d4ed8', borderRadius: 5 },
 });

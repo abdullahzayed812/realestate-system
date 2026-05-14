@@ -1,17 +1,25 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  FlatList, KeyboardAvoidingView, Platform, Image, ActivityIndicator,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { io, Socket } from 'socket.io-client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
-const SOCKET_URL = __DEV__ ? 'http://10.0.2.2:3004' : 'https://api.borgalarab-realestate.com';
+const SOCKET_URL = __DEV__ ? 'http://192.168.0.128:3004' : 'https://api.borgalarab-realestate.com';
 
 interface Message {
   id: string;
@@ -28,7 +36,6 @@ export default function ChatScreen(): React.ReactElement {
   const route = useRoute<any>();
   const navigation = useNavigation();
   const { user } = useAuthStore();
-  const queryClient = useQueryClient();
 
   const { chatId, otherUser } = route.params;
 
@@ -45,18 +52,21 @@ export default function ChatScreen(): React.ReactElement {
     queryKey: ['messages', chatId],
     queryFn: async () => {
       const { data } = await api.get(`/chats/${chatId}/messages`);
-      return data.data.data as Message[];
+      return (data.data.data as Message[]).reverse();
     },
-    onSuccess: (data) => {
-      setMessages(data.reverse());
-    },
+    enabled: !!chatId && chatId !== 'undefined',
   });
+
+  useEffect(() => {
+    if (historyData) setMessages(historyData);
+  }, [historyData]);
 
   // Connect to Socket.IO
   useEffect(() => {
     let socketInstance: Socket;
 
     const connectSocket = async (): Promise<void> => {
+      if (!chatId || chatId === 'undefined') return;
       const token = await AsyncStorage.getItem('access_token');
       if (!token) return;
 
@@ -84,9 +94,7 @@ export default function ChatScreen(): React.ReactElement {
       });
 
       socketInstance.on('messages_read', () => {
-        setMessages((prev) =>
-          prev.map((m) => ({ ...m, isRead: true })),
-        );
+        setMessages((prev) => prev.map((m) => ({ ...m, isRead: true })));
       });
 
       socketInstance.on('disconnect', () => setConnected(false));
@@ -147,9 +155,7 @@ export default function ChatScreen(): React.ReactElement {
               hour: '2-digit',
               minute: '2-digit',
             })}
-            {isMine && (
-              <Text> {item.isRead ? '✓✓' : '✓'}</Text>
-            )}
+            {isMine && <Text> {item.isRead ? '✓✓' : '✓'}</Text>}
           </Text>
         </View>
       </View>
@@ -241,55 +247,84 @@ const styles = StyleSheet.create({
   },
   backBtn: { padding: 4 },
   headerInfo: { flex: 1 },
-  headerName: { fontSize: 16, fontWeight: '700', color: '#fff'' },
-  headerStatus: { fontSize: 12, color: '#94a3b8'' },
+  headerName: { fontSize: 16, fontWeight: '700', color: '#fff' },
+  headerStatus: { fontSize: 12, color: '#94a3b8' },
   headerStatusOnline: { color: '#4ade80' },
   headerAvatar: {
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: '#1d4ed8', alignItems: 'center', justifyContent: 'center',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#1d4ed8',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   messagesList: { paddingHorizontal: 16, paddingVertical: 12 },
   messageRow: { marginBottom: 8, alignItems: 'flex-start' },
   messageRowMine: { alignItems: 'flex-end' },
   bubble: {
-    maxWidth: '75%', borderRadius: 16, paddingHorizontal: 14, paddingVertical: 10,
+    maxWidth: '75%',
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
   },
   bubbleOther: {
     backgroundColor: '#fff',
     borderBottomRightRadius: 4,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   bubbleMine: {
     backgroundColor: '#1d4ed8',
     borderBottomLeftRadius: 4,
   },
-  messageText: { fontSize: 15, color: '#0f172a', lineHeight: 22' },
+  messageText: { fontSize: 15, color: '#0f172a', lineHeight: 22 },
   messageTextMine: { color: '#fff' },
   messageImage: { width: 220, height: 165, borderRadius: 10 },
-  messageTime: { fontSize: 11, color: '#94a3b8', marginTop: 4' },
+  messageTime: { fontSize: 11, color: '#94a3b8', marginTop: 4 },
   messageTimeMine: { color: 'rgba(255,255,255,0.7)' },
   typingIndicator: {
-    paddingHorizontal: 16, paddingVertical: 8,
-    backgroundColor: '#fff', borderRadius: 16, alignSelf: 'flex-start',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    alignSelf: 'flex-start',
   },
   typingText: { fontSize: 13, color: '#64748b', fontStyle: 'italic' },
   inputRow: {
-    flexDirection: 'row', alignItems: 'flex-end',
-    backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 10,
-    borderTopWidth: 1, borderTopColor: '#f1f5f9', gap: 8,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    backgroundColor: '#fff',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#f1f5f9',
+    gap: 8,
   },
   attachBtn: { padding: 6 },
   input: {
-    flex: 1, minHeight: 44, maxHeight: 120,
-    backgroundColor: '#f8fafc', borderRadius: 22, paddingHorizontal: 16,
-    paddingVertical: 10, fontSize: 15, color: '#0f172a',
-    borderWidth: 1.5, borderColor: '#e2e8f0',
+    flex: 1,
+    minHeight: 44,
+    maxHeight: 120,
+    backgroundColor: '#f8fafc',
+    borderRadius: 22,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: '#0f172a',
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
   },
   sendBtn: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: '#1d4ed8', alignItems: 'center', justifyContent: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#1d4ed8',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   sendBtnDisabled: { opacity: 0.4 },
 });
