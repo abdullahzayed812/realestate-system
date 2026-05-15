@@ -33,10 +33,17 @@ export class BookingService {
       }
     }
 
+    // The mobile app sends the broker record ID (brokers.id).
+    // bookings.broker_id references users.id, so resolve it.
+    const brokerUserId = await this.bookingRepo.resolveBrokerUserId(brokerId);
+    if (!brokerUserId) {
+      throw new ValidationError('Broker not found');
+    }
+
     const booking = await this.bookingRepo.create({
       ...dto,
       customerId,
-      brokerId,
+      brokerId: brokerUserId,
     });
 
     logger.info(`Booking created: ${booking.id} by customer ${customerId}`);

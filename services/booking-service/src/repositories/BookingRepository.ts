@@ -55,37 +55,102 @@ export class BookingRepository {
     return rows[0] || null;
   }
 
-  async findByCustomer(customerId: string, status?: BookingStatus): Promise<IBooking[]> {
+  async findByCustomer(customerId: string, status?: BookingStatus): Promise<any[]> {
     const params: unknown[] = [customerId];
-    const statusClause = status ? 'AND status = ?' : '';
+    const statusClause = status ? 'AND b.status = ?' : '';
     if (status) params.push(status);
 
-    const { rows } = await this.db.execute<BookingRow>(
-      `SELECT id, property_id AS propertyId, customer_id AS customerId,
-              broker_id AS brokerId, type, status, scheduled_at AS scheduledAt,
-              duration, check_in AS checkIn, check_out AS checkOut,
-              total_price AS totalPrice, notes, created_at AS createdAt
-       FROM bookings WHERE customer_id = ? ${statusClause}
-       ORDER BY scheduled_at DESC`,
+    const { rows } = await this.db.execute<RowDataPacket>(
+      `SELECT
+         b.id, b.property_id AS propertyId, b.customer_id AS customerId,
+         b.broker_id AS brokerId, b.type, b.status,
+         b.scheduled_at AS scheduledAt,
+         DATE(b.scheduled_at) AS scheduledDate,
+         TIME(b.scheduled_at) AS scheduledTime,
+         b.duration, b.check_in AS checkIn, b.check_out AS checkOut,
+         b.total_price AS totalPrice, b.notes AS message, b.created_at AS createdAt,
+         p.title_ar AS propertyTitleAr,
+         u.first_name AS brokerFirstName,
+         u.last_name AS brokerLastName,
+         u.phone AS brokerPhone
+       FROM bookings b
+       LEFT JOIN properties p ON p.id = b.property_id
+       LEFT JOIN users u ON u.id = b.broker_id
+       WHERE b.customer_id = ? ${statusClause}
+       ORDER BY b.scheduled_at DESC`,
       params,
     );
-    return rows;
+
+    return rows.map((row: any) => ({
+      id: row.id,
+      propertyId: row.propertyId,
+      customerId: row.customerId,
+      brokerId: row.brokerId,
+      type: row.type,
+      status: row.status,
+      scheduledAt: row.scheduledAt,
+      scheduledDate: row.scheduledDate,
+      scheduledTime: row.scheduledTime,
+      duration: row.duration,
+      checkIn: row.checkIn,
+      checkOut: row.checkOut,
+      totalPrice: row.totalPrice,
+      message: row.message,
+      createdAt: row.createdAt,
+      property: { titleAr: row.propertyTitleAr },
+      broker: {
+        firstName: row.brokerFirstName,
+        lastName: row.brokerLastName,
+        phone: row.brokerPhone,
+      },
+    }));
   }
 
-  async findByBroker(brokerId: string, status?: BookingStatus): Promise<IBooking[]> {
+  async findByBroker(brokerId: string, status?: BookingStatus): Promise<any[]> {
     const params: unknown[] = [brokerId];
-    const statusClause = status ? 'AND status = ?' : '';
+    const statusClause = status ? 'AND b.status = ?' : '';
     if (status) params.push(status);
 
-    const { rows } = await this.db.execute<BookingRow>(
-      `SELECT id, property_id AS propertyId, customer_id AS customerId,
-              broker_id AS brokerId, type, status, scheduled_at AS scheduledAt,
-              duration, notes, created_at AS createdAt
-       FROM bookings WHERE broker_id = ? ${statusClause}
-       ORDER BY scheduled_at ASC`,
+    const { rows } = await this.db.execute<RowDataPacket>(
+      `SELECT
+         b.id, b.property_id AS propertyId, b.customer_id AS customerId,
+         b.broker_id AS brokerId, b.type, b.status,
+         b.scheduled_at AS scheduledAt,
+         DATE(b.scheduled_at) AS scheduledDate,
+         TIME(b.scheduled_at) AS scheduledTime,
+         b.duration, b.notes AS message, b.created_at AS createdAt,
+         p.title_ar AS propertyTitleAr,
+         u.first_name AS customerFirstName,
+         u.last_name AS customerLastName,
+         u.phone AS customerPhone
+       FROM bookings b
+       LEFT JOIN properties p ON p.id = b.property_id
+       LEFT JOIN users u ON u.id = b.customer_id
+       WHERE b.broker_id = ? ${statusClause}
+       ORDER BY b.scheduled_at ASC`,
       params,
     );
-    return rows;
+
+    return rows.map((row: any) => ({
+      id: row.id,
+      propertyId: row.propertyId,
+      customerId: row.customerId,
+      brokerId: row.brokerId,
+      type: row.type,
+      status: row.status,
+      scheduledAt: row.scheduledAt,
+      scheduledDate: row.scheduledDate,
+      scheduledTime: row.scheduledTime,
+      duration: row.duration,
+      message: row.message,
+      createdAt: row.createdAt,
+      property: { titleAr: row.propertyTitleAr },
+      customer: {
+        firstName: row.customerFirstName,
+        lastName: row.customerLastName,
+        phone: row.customerPhone,
+      },
+    }));
   }
 
   async updateStatus(
@@ -122,6 +187,14 @@ export class BookingRepository {
       `UPDATE bookings SET ${fields.join(', ')} WHERE id = ?`,
       params,
     );
+  }
+
+  async resolveBrokerUserId(brokerId: string): Promise<string | null> {
+    const { rows } = await this.db.execute<RowDataPacket>(
+      'SELECT user_id FROM brokers WHERE id = ?',
+      [brokerId],
+    );
+    return (rows[0] as any)?.user_id ?? null;
   }
 
   async findUpcomingReminders(): Promise<IBooking[]> {

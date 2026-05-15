@@ -38,9 +38,10 @@ export default function BookingScreen(): React.ReactElement {
   const bookingMutation = useMutation({
     mutationFn: async () => {
       const payload: Record<string, unknown> = {
+        brokerId,
         propertyId,
         type: bookingType,
-        scheduledDate: selectedDate,
+        scheduledAt: new Date(selectedDate),
         scheduledTime: selectedTime + ':00',
         message: message || undefined,
       };
@@ -59,6 +60,7 @@ export default function BookingScreen(): React.ReactElement {
       ]);
     },
     onError: (err: any) => {
+      console.log(err.response.data);
       Alert.alert('خطأ', err?.response?.data?.message || 'حدث خطأ، حاول مرة أخرى');
     },
   });
@@ -182,7 +184,7 @@ export default function BookingScreen(): React.ReactElement {
           />
         </View>
 
-        <View style={{ height: 100 }} />
+        {/* <View style={{ height: 130 }} /> */}
       </ScrollView>
 
       <View style={styles.footer}>
@@ -275,12 +277,13 @@ const styles = StyleSheet.create({
     minHeight: 100,
   },
   footer: {
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
     paddingBottom: Platform.OS === 'ios' ? 32 : 20,
     paddingTop: 12,
     borderTopWidth: 1,
     borderTopColor: '#f1f5f9',
+    marginBottom: 88,
   },
   submitBtn: {
     backgroundColor: '#1d4ed8',

@@ -41,11 +41,11 @@ export default function ProfileScreen(): React.ReactElement {
           label: 'العقارات المفضلة',
           onPress: () => navigation.navigate('Favorites'),
         },
-        {
-          icon: '📅',
-          label: 'حجوزاتي',
-          onPress: () => Alert.alert('قريباً', 'عرض الحجوزات قيد التطوير'),
-        },
+        // {
+        //   icon: '📅',
+        //   label: 'حجوزاتي',
+        //   onPress: () => Alert.alert('قريباً', 'عرض الحجوزات قيد التطوير'),
+        // },
       ],
     },
     {
@@ -174,7 +174,7 @@ export default function ProfileScreen(): React.ReactElement {
         ))}
 
         <Text style={styles.versionText}>برج العرب العقارية v1.0.0</Text>
-        <View style={{ height: 20 }} />
+        <View style={{ height: 120 }} />
       </ScrollView>
     </SafeAreaView>
   );

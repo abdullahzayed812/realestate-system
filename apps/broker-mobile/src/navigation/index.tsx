@@ -3,7 +3,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator, BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import {
-  Platform, Text, View, StyleSheet, ActivityIndicator, TouchableOpacity,
+  Platform,
+  Text,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  TouchableOpacity,
 } from 'react-native';
 import { useAuthStore } from '../store/authStore';
 
@@ -28,10 +33,10 @@ import BrokerProfileScreen from '../screens/profile/ProfileScreen';
 
 const TABS: Record<string, { icon: string; label: string }> = {
   dashboard: { icon: '📊', label: 'الرئيسية' },
-  listings:  { icon: '🏠', label: 'عقاراتي' },
-  bookings:  { icon: '📅', label: 'الحجوزات' },
-  chat:      { icon: '💬', label: 'الدردشة' },
-  profile:   { icon: '👤', label: 'حسابي' },
+  listings: { icon: '🏠', label: 'عقاراتي' },
+  bookings: { icon: '📅', label: 'الحجوزات' },
+  chat: { icon: '💬', label: 'الدردشة' },
+  profile: { icon: '👤', label: 'حسابي' },
 };
 
 function BrokerTabBar({ state, navigation }: BottomTabBarProps) {
@@ -59,7 +64,9 @@ function BrokerTabBar({ state, navigation }: BottomTabBarProps) {
               activeOpacity={0.8}
             >
               <Text style={tabStyles.icon}>{tab.icon}</Text>
-              <Text style={[tabStyles.label, focused ? tabStyles.labelActive : tabStyles.labelInactive]}>
+              <Text
+                style={[tabStyles.label, focused ? tabStyles.labelActive : tabStyles.labelInactive]}
+              >
                 {tab.label}
               </Text>
             </TouchableOpacity>
@@ -163,7 +170,12 @@ export function AppNavigator(): React.ReactElement {
 }
 
 const splashStyles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a1628', alignItems: 'center', justifyContent: 'center' },
+  container: {
+    flex: 1,
+    backgroundColor: '#0a1628',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   logo: { fontSize: 72 },
   name: { fontSize: 22, fontWeight: '800', color: '#fff', marginTop: 16 },
 });
@@ -205,10 +217,10 @@ const tabStyles = StyleSheet.create({
     flex: 1.6,
   },
   icon: {
-    fontSize: 20,
+    fontSize: 18,
   },
   label: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   labelActive: {

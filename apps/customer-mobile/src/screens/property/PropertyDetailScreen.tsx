@@ -291,7 +291,7 @@ export default function PropertyDetailScreen(): React.ReactElement {
           </View>
         </View>
 
-        <View style={{ height: 100 }} />
+        <View style={{ height: 180 }} />
       </ScrollView>
 
       {/* Book CTA */}
@@ -438,7 +438,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: '#fff',
+    marginBottom: 75,
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
     paddingBottom: 32,
     paddingTop: 12,

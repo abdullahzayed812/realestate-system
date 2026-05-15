@@ -7,6 +7,11 @@ import {
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -46,6 +51,11 @@ interface Booking {
 export default function BookingRequestsScreen(): React.ReactElement {
   const queryClient = useQueryClient();
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [cancelModal, setCancelModal] = useState<{ visible: boolean; bookingId: string | null }>({
+    visible: false,
+    bookingId: null,
+  });
+  const [cancelReason, setCancelReason] = useState('');
 
   const { data, isLoading } = useQuery({
     queryKey: ['broker', 'bookings', statusFilter],
@@ -65,10 +75,17 @@ export default function BookingRequestsScreen(): React.ReactElement {
   });
 
   const cancelMutation = useMutation({
-    mutationFn: async (id: string) => {
-      await api.patch(`/bookings/${id}/cancel`);
+    mutationFn: async ({ id, reason }: { id: string; reason: string }) => {
+      await api.patch(`/bookings/${id}/cancel`, { reason });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['broker', 'bookings'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['broker', 'bookings'] });
+      setCancelModal({ visible: false, bookingId: null });
+      setCancelReason('');
+    },
+    onError: () => {
+      Alert.alert('خطأ', 'حدث خطأ أثناء إلغاء الحجز، حاول مرة أخرى');
+    },
   });
 
   const handleConfirm = (id: string) => {
@@ -79,13 +96,19 @@ export default function BookingRequestsScreen(): React.ReactElement {
   };
 
   const handleCancel = (id: string) => {
-    Alert.alert('إلغاء الحجز', 'هل تريد إلغاء هذا الحجز؟', [
-      { text: 'تراجع', style: 'cancel' },
-      { text: 'إلغاء', style: 'destructive', onPress: () => cancelMutation.mutate(id) },
-    ]);
+    setCancelReason('');
+    setCancelModal({ visible: true, bookingId: id });
   };
 
-  const bookings: Booking[] = data?.data || [];
+  const submitCancel = () => {
+    if (cancelReason.trim().length < 5) {
+      Alert.alert('تنبيه', 'يرجى كتابة سبب الإلغاء (5 أحرف على الأقل)');
+      return;
+    }
+    cancelMutation.mutate({ id: cancelModal.bookingId!, reason: cancelReason.trim() });
+  };
+
+  const bookings: Booking[] = data || [];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -174,6 +197,61 @@ export default function BookingRequestsScreen(): React.ReactElement {
           }
         />
       )}
+      <Modal
+        visible={cancelModal.visible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setCancelModal({ visible: false, bookingId: null })}
+      >
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setCancelModal({ visible: false, bookingId: null })}
+        >
+          <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+            <Pressable style={styles.modalCard} onPress={() => {}}>
+              <Text style={styles.modalTitle}>سبب الإلغاء</Text>
+              <Text style={styles.modalSubtitle}>يرجى توضيح سبب إلغاء الحجز للعميل</Text>
+
+              <TextInput
+                style={styles.modalInput}
+                value={cancelReason}
+                onChangeText={setCancelReason}
+                placeholder="مثال: تعارض في المواعيد، العقار غير متاح..."
+                placeholderTextColor="#94a3b8"
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+                maxLength={500}
+                autoFocus
+              />
+              <Text style={styles.charCount}>{cancelReason.length}/500</Text>
+
+              <View style={styles.modalActions}>
+                <TouchableOpacity
+                  style={styles.modalCancelBtn}
+                  onPress={() => setCancelModal({ visible: false, bookingId: null })}
+                >
+                  <Text style={styles.modalCancelText}>تراجع</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.modalConfirmBtn,
+                    cancelMutation.isPending && styles.modalConfirmDisabled,
+                  ]}
+                  onPress={submitCancel}
+                  disabled={cancelMutation.isPending}
+                >
+                  {cancelMutation.isPending ? (
+                    <ActivityIndicator color="#fff" size="small" />
+                  ) : (
+                    <Text style={styles.modalConfirmText}>تأكيد الإلغاء</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </Pressable>
+          </KeyboardAvoidingView>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -202,7 +280,7 @@ const styles = StyleSheet.create({
   filterBtnText: { fontSize: 12, fontWeight: '600', color: '#64748b' },
   filterBtnTextActive: { color: '#fff' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  listContent: { padding: 16, gap: 12 },
+  listContent: { paddingBottom: 120, padding: 16, gap: 12 },
   card: {
     backgroundColor: '#fff',
     borderRadius: 18,
@@ -256,4 +334,46 @@ const styles = StyleSheet.create({
   cancelBtnText: { color: '#dc2626', fontWeight: '700', fontSize: 13 },
   emptyContainer: { flex: 1, alignItems: 'center', paddingTop: 80 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#374151', marginTop: 16 },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+  },
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 24,
+  },
+  modalTitle: { fontSize: 18, fontWeight: '800', color: '#0f172a', marginBottom: 6 },
+  modalSubtitle: { fontSize: 13, color: '#64748b', marginBottom: 16 },
+  modalInput: {
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 14,
+    padding: 14,
+    fontSize: 14,
+    color: '#0f172a',
+    minHeight: 90,
+  },
+  charCount: { fontSize: 11, color: '#94a3b8', textAlign: 'right', marginTop: 4, marginBottom: 20 },
+  modalActions: { flexDirection: 'row', gap: 10 },
+  modalCancelBtn: {
+    flex: 1,
+    borderWidth: 1.5,
+    borderColor: '#e2e8f0',
+    borderRadius: 14,
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  modalCancelText: { fontSize: 14, fontWeight: '700', color: '#374151' },
+  modalConfirmBtn: {
+    flex: 1,
+    backgroundColor: '#dc2626',
+    borderRadius: 14,
+    paddingVertical: 13,
+    alignItems: 'center',
+  },
+  modalConfirmDisabled: { opacity: 0.6 },
+  modalConfirmText: { fontSize: 14, fontWeight: '700', color: '#fff' },
 });

@@ -17,6 +17,7 @@ const MainTab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
 const SearchStack = createStackNavigator();
 const ChatStack = createStackNavigator();
+const BookingsStack = createStackNavigator();
 const ProfileStack = createStackNavigator();
 const Root = createStackNavigator();
 
@@ -30,6 +31,7 @@ import MapScreen from '../screens/property/MapScreen';
 import ChatListScreen from '../screens/chat/ChatListScreen';
 import ChatScreen from '../screens/chat/ChatScreen';
 import BookingScreen from '../screens/booking/BookingScreen';
+import BookingsScreen from '../screens/booking/BookingsScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import FavoritesScreen from '../screens/profile/FavoritesScreen';
 
@@ -37,6 +39,7 @@ const TABS: Record<string, { icon: string; label: string }> = {
   Home: { icon: '🏠', label: 'الرئيسية' },
   Search: { icon: '🔍', label: 'البحث' },
   Chat: { icon: '💬', label: 'الدردشة' },
+  Bookings: { icon: '📅', label: 'حجوزاتي' },
   Profile: { icon: '👤', label: 'حسابي' },
 };
 
@@ -107,6 +110,14 @@ function ChatNavigator(): React.ReactElement {
   );
 }
 
+function BookingsNavigator(): React.ReactElement {
+  return (
+    <BookingsStack.Navigator screenOptions={{ headerShown: false }}>
+      <BookingsStack.Screen name="BookingsList" component={BookingsScreen} />
+    </BookingsStack.Navigator>
+  );
+}
+
 function ProfileNavigator(): React.ReactElement {
   return (
     <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
@@ -126,6 +137,7 @@ function MainTabNavigator(): React.ReactElement {
       }}
     >
       <MainTab.Screen name="Home" component={HomeNavigator} />
+      <MainTab.Screen name="Bookings" component={BookingsNavigator} />
       <MainTab.Screen name="Search" component={SearchNavigator} />
       <MainTab.Screen name="Chat" component={ChatNavigator} />
       <MainTab.Screen name="Profile" component={ProfileNavigator} />
@@ -216,10 +228,10 @@ const tabStyles = StyleSheet.create({
     flex: 1.6,
   },
   icon: {
-    fontSize: 20,
+    fontSize: 18,
   },
   label: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: 'bold',
   },
   labelActive: {

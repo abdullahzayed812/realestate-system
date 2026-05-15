@@ -348,7 +348,7 @@ CREATE TABLE IF NOT EXISTS `bookings` (
   `property_id`   CHAR(36)    NOT NULL,
   `customer_id`   CHAR(36)    NOT NULL,
   `broker_id`     CHAR(36)    NOT NULL,
-  `type`          ENUM('VISIT','RENT','PURCHASE') NOT NULL DEFAULT 'VISIT',
+  `type`          ENUM('VIEWING','RENTAL','PURCHASE') NOT NULL DEFAULT 'VIEWING',
   `status`        ENUM('PENDING','CONFIRMED','CANCELLED','COMPLETED','NO_SHOW') NOT NULL DEFAULT 'PENDING',
   `scheduled_at`  TIMESTAMP   NOT NULL,
   `duration`      SMALLINT    NULL COMMENT 'in minutes for visits',

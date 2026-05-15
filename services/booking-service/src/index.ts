@@ -4,7 +4,13 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { DatabaseConnection, RedisConnection } from '@realestate/database';
-import { errorHandler, requestLogger, authenticate, authorize, validate } from '@realestate/middlewares';
+import {
+  errorHandler,
+  requestLogger,
+  authenticate,
+  authorize,
+  validate,
+} from '@realestate/middlewares';
 import { ApiResponse } from '@realestate/response';
 import { BookingService } from './services/BookingService';
 import { createLogger } from '@realestate/utils';
@@ -16,14 +22,14 @@ const logger = createLogger('BookingService');
 const PORT = parseInt(process.env.PORT || '3003', 10);
 
 const createBookingSchema = Joi.object({
-  propertyId: Joi.string().uuid().required(),
-  type: Joi.string().valid('VISIT', 'RENT', 'PURCHASE').required(),
+  brokerId: Joi.string().required(),
+  propertyId: Joi.string().required(),
   scheduledAt: Joi.string().isoDate().required(),
+  type: Joi.string().valid('VIEWING', 'RENTAL', 'PURCHASE').required(),
   duration: Joi.number().integer().min(15).optional(),
   checkIn: Joi.string().isoDate().optional(),
   checkOut: Joi.string().isoDate().optional(),
   notes: Joi.string().max(500).optional().allow('', null),
-  brokerId: Joi.string().uuid().required(),
 });
 
 const cancelSchema = Joi.object({
@@ -60,11 +66,24 @@ async function bootstrap(): Promise<void> {
   app.get('/api/bookings', authenticate, async (req, res) => {
     const role = req.user!.role;
     const status = req.query.status as string | undefined;
-    const bookings = role === 'BROKER' || role === 'COMPANY'
-      ? await bookingService.getBrokerBookings(req.user!.sub, status as any)
-      : await bookingService.getCustomerBookings(req.user!.sub, status as any);
+    const bookings =
+      role === 'BROKER' || role === 'COMPANY'
+        ? await bookingService.getBrokerBookings(req.user!.sub, status as any)
+        : await bookingService.getCustomerBookings(req.user!.sub, status as any);
     ApiResponse.success(res, bookings);
   });
+
+  // Get broker's bookings (must be before /:id)
+  app.get(
+    '/api/bookings/broker',
+    authenticate,
+    authorize('BROKER', 'COMPANY', 'ADMIN'),
+    async (req, res) => {
+      const status = req.query.status as string | undefined;
+      const bookings = await bookingService.getBrokerBookings(req.user!.sub, status as any);
+      ApiResponse.success(res, bookings);
+    },
+  );
 
   // Get single booking
   app.get('/api/bookings/:id', authenticate, async (req, res) => {
@@ -84,19 +103,14 @@ async function bootstrap(): Promise<void> {
   );
 
   // Cancel
-  app.patch(
-    '/api/bookings/:id/cancel',
-    authenticate,
-    validate(cancelSchema),
-    async (req, res) => {
-      const booking = await bookingService.cancelBooking(
-        req.params.id,
-        req.user!.sub,
-        req.body.reason,
-      );
-      ApiResponse.success(res, booking, 'Booking cancelled');
-    },
-  );
+  app.patch('/api/bookings/:id/cancel', authenticate, validate(cancelSchema), async (req, res) => {
+    const booking = await bookingService.cancelBooking(
+      req.params.id,
+      req.user!.sub,
+      req.body.reason,
+    );
+    ApiResponse.success(res, booking, 'Booking cancelled');
+  });
 
   // Complete (broker)
   app.patch(

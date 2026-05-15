@@ -1,9 +1,10 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_BASE_URL = __DEV__
-  ? 'http://192.168.0.128/api'
-  : 'https://api.borgalarab-realestate.com/api';
+// const API_BASE_URL = __DEV__
+//   ? 'http://192.168.0.128/api'
+//   : 'https://api.borgalarab-realestate.com/api';
+const API_BASE_URL = 'http://192.168.0.128/api';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
