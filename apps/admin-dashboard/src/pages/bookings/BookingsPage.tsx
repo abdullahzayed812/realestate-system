@@ -47,49 +47,6 @@ interface Booking {
   createdAt: string;
 }
 
-const MOCK_BOOKINGS: Booking[] = [
-  {
-    id: 'book-001',
-    property: { id: 'prop-001', titleAr: 'شقة فاخرة في برج العرب الجديدة', type: 'APARTMENT' },
-    customer: { firstName: 'سارة', lastName: 'أحمد', phone: '+201000000010' },
-    broker: { firstName: 'محمد', lastName: 'السيد' },
-    type: 'VIEWING', status: 'CONFIRMED',
-    scheduledDate: '2026-05-20', scheduledTime: '10:00:00',
-    totalPrice: null, message: 'أود معاينة الشقة في الموعد المحدد',
-    createdAt: '2026-05-13T09:00:00Z',
-  },
-  {
-    id: 'book-002',
-    property: { id: 'prop-003', titleAr: 'شقة مفروشة للإيجار', type: 'APARTMENT' },
-    customer: { firstName: 'عمر', lastName: 'حسن', phone: '+201000000011' },
-    broker: { firstName: 'محمد', lastName: 'السيد' },
-    type: 'RENTAL', status: 'PENDING',
-    scheduledDate: '2026-05-18', scheduledTime: '14:00:00',
-    totalPrice: 27000, message: 'مهتم بالإيجار لمدة 6 أشهر',
-    createdAt: '2026-05-12T16:00:00Z',
-  },
-  {
-    id: 'book-003',
-    property: { id: 'prop-006', titleAr: 'استوديو - إيجار يومي', type: 'STUDIO' },
-    customer: { firstName: 'نور', lastName: 'إبراهيم', phone: '+201000000012' },
-    broker: { firstName: 'محمد', lastName: 'السيد' },
-    type: 'RENTAL', status: 'COMPLETED',
-    scheduledDate: '2026-04-10', scheduledTime: '11:00:00',
-    totalPrice: 2450, message: 'حجز لأسبوع',
-    createdAt: '2026-04-08T10:00:00Z',
-  },
-  {
-    id: 'book-004',
-    property: { id: 'prop-002', titleAr: 'فيلا عصرية للبيع', type: 'VILLA' },
-    customer: { firstName: 'سارة', lastName: 'أحمد', phone: '+201000000010' },
-    broker: { firstName: 'محمد', lastName: 'السيد' },
-    type: 'PURCHASE', status: 'PENDING',
-    scheduledDate: '2026-05-25', scheduledTime: '15:00:00',
-    totalPrice: null, message: 'مهتم بشراء الفيلا',
-    createdAt: '2026-05-14T08:00:00Z',
-  },
-];
-
 export function BookingsPage(): React.ReactElement {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<BookingStatus>('ALL');
@@ -102,22 +59,17 @@ export function BookingsPage(): React.ReactElement {
       const { data } = await api.get(`/bookings?${params}`);
       return data.data;
     },
-    placeholderData: {
-      data: MOCK_BOOKINGS.filter((b) => {
-        const matchesStatus = statusFilter === 'ALL' || b.status === statusFilter;
-        const matchesSearch = !search || b.customer.firstName.includes(search) || b.property.titleAr.includes(search);
-        return matchesStatus && matchesSearch;
-      }),
-      meta: { total: 4 },
-    },
   });
 
-  const bookings: Booking[] = data?.data || [];
+  const bookings: Booking[] = data || [];
 
-  const statCounts = MOCK_BOOKINGS.reduce((acc, b) => {
-    acc[b.status] = (acc[b.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const statCounts = bookings.reduce(
+    (acc, b) => {
+      acc[b.status] = (acc[b.status] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   return (
     <div className="p-6 space-y-6" dir="rtl">
@@ -154,19 +106,21 @@ export function BookingsPage(): React.ReactElement {
           />
         </div>
         <div className="flex gap-2 flex-wrap">
-          {(['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as BookingStatus[]).map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                statusFilter === s
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              {s === 'ALL' ? 'الكل' : STATUS_LABELS[s]}
-            </button>
-          ))}
+          {(['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'] as BookingStatus[]).map(
+            (s) => (
+              <button
+                key={s}
+                onClick={() => setStatusFilter(s)}
+                className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                  statusFilter === s
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'
+                }`}
+              >
+                {s === 'ALL' ? 'الكل' : STATUS_LABELS[s]}
+              </button>
+            ),
+          )}
         </div>
       </div>
 
@@ -189,11 +143,15 @@ export function BookingsPage(): React.ReactElement {
               {bookings.map((booking) => (
                 <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
-                    <p className="font-medium text-gray-900 max-w-[200px] truncate">{booking.property.titleAr}</p>
+                    <p className="font-medium text-gray-900 max-w-[200px] truncate">
+                      {booking.property.titleAr}
+                    </p>
                     <p className="text-xs text-gray-400 mt-0.5">#{booking.id.slice(-6)}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <p className="font-medium text-gray-900">{booking.customer.firstName} {booking.customer.lastName}</p>
+                    <p className="font-medium text-gray-900">
+                      {booking.customer.firstName} {booking.customer.lastName}
+                    </p>
                     <p className="text-xs text-gray-500">{booking.customer.phone}</p>
                   </td>
                   <td className="px-6 py-4 text-gray-700">
@@ -209,13 +167,17 @@ export function BookingsPage(): React.ReactElement {
                       <CalendarDays size={13} className="text-gray-400" />
                       <span className="text-xs">{formatDate(booking.scheduledDate)}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-0.5">{booking.scheduledTime?.slice(0, 5)}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {booking.scheduledTime?.slice(0, 5)}
+                    </p>
                   </td>
                   <td className="px-6 py-4 font-semibold text-gray-900">
                     {booking.totalPrice ? formatCurrency(booking.totalPrice) : '—'}
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[booking.status]}`}>
+                    <span
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_COLORS[booking.status]}`}
+                    >
                       {STATUS_ICONS[booking.status]}
                       {STATUS_LABELS[booking.status]}
                     </span>

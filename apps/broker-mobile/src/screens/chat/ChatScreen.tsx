@@ -19,7 +19,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
 
-const SOCKET_URL = __DEV__ ? 'http://192.168.0.128:3004' : 'https://api.borgalarab-realestate.com';
+// const SOCKET_URL = __DEV__ ? 'http://192.168.0.128:3004' : 'https://api.borgalarab-realestate.com';
+const SOCKET_URL = 'http://192.168.0.128:3004';
 
 interface Message {
   id: string;

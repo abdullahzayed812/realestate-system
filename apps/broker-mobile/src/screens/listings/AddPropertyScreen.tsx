@@ -39,6 +39,13 @@ const FURNISHED_OPTS = [
   { key: 'UNFURNISHED', label: 'غير مفروش' },
 ];
 
+const CONDITION_OPTS = [
+  { key: 'NEW', label: 'جديد' },
+  { key: 'EXCELLENT', label: 'ممتاز' },
+  { key: 'GOOD', label: 'جيد' },
+  { key: 'NEEDS_RENOVATION', label: 'يحتاج تجديد' },
+];
+
 interface FormState {
   titleAr: string;
   descriptionAr: string;
@@ -50,7 +57,9 @@ interface FormState {
   bathrooms: string;
   floor: string;
   totalFloors: string;
+  parkingSpaces: string;
   furnished: string;
+  condition: string;
   address: string;
   district: string;
 }
@@ -72,7 +81,9 @@ export default function AddPropertyScreen(): React.ReactElement {
     bathrooms: '',
     floor: '',
     totalFloors: '',
+    parkingSpaces: '',
     furnished: '',
+    condition: '',
     address: '',
     district: '',
   });
@@ -84,20 +95,24 @@ export default function AddPropertyScreen(): React.ReactElement {
   const createMutation = useMutation({
     mutationFn: async () => {
       const payload = {
+        title: form.titleAr,
         titleAr: form.titleAr,
+        description: form.descriptionAr,
         descriptionAr: form.descriptionAr,
         type: form.type,
         listingType: form.listingType,
         price: parseFloat(form.price),
         area: parseFloat(form.area),
-        bedrooms: form.bedrooms ? parseInt(form.bedrooms) : undefined,
-        bathrooms: form.bathrooms ? parseInt(form.bathrooms) : undefined,
-        floor: form.floor ? parseInt(form.floor) : undefined,
-        totalFloors: form.totalFloors ? parseInt(form.totalFloors) : undefined,
+        bedrooms: form.bedrooms ? parseInt(form.bedrooms, 10) : undefined,
+        bathrooms: form.bathrooms ? parseInt(form.bathrooms, 10) : undefined,
+        floor: form.floor ? parseInt(form.floor, 10) : undefined,
+        totalFloors: form.totalFloors ? parseInt(form.totalFloors, 10) : undefined,
+        parkingSpaces: form.parkingSpaces ? parseInt(form.parkingSpaces, 10) : 0,
         furnished: form.furnished || undefined,
+        condition: form.condition || undefined,
         location: {
-          address: form.address,
-          addressAr: form.address,
+          address: form.address || form.district || 'برج العرب',
+          addressAr: form.address || form.district || 'برج العرب',
           city: 'Borg El Arab',
           district: form.district || undefined,
           latitude: 30.876,
@@ -118,7 +133,12 @@ export default function AddPropertyScreen(): React.ReactElement {
     },
   });
 
-  const isValid = form.titleAr.trim() && form.price && form.area;
+  const isValid =
+    form.titleAr.trim().length >= 10 &&
+    form.descriptionAr.trim().length >= 50 &&
+    form.price &&
+    form.area &&
+    form.address.trim();
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,7 +169,12 @@ export default function AddPropertyScreen(): React.ReactElement {
               placeholderTextColor="#94a3b8"
             />
 
-            <Text style={styles.label}>وصف العقار *</Text>
+            <Text style={styles.label}>
+              {'وصف العقار * '}
+              <Text style={styles.labelHint}>
+                ({form.descriptionAr.trim().length}/50 حرف كحد أدنى)
+              </Text>
+            </Text>
             <TextInput
               style={[styles.input, { minHeight: 100 }]}
               value={form.descriptionAr}
@@ -211,9 +236,25 @@ export default function AddPropertyScreen(): React.ReactElement {
             <View style={styles.gridRow}>
               <View style={styles.gridCell}>
                 <Text style={styles.label}>السعر (جنيه) *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.price}
+                  onChangeText={(v) => update('price', v)}
+                  placeholder="0"
+                  keyboardType="numeric"
+                  placeholderTextColor="#94a3b8"
+                />
               </View>
               <View style={styles.gridCell}>
                 <Text style={styles.label}>المساحة (م²) *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.area}
+                  onChangeText={(v) => update('area', v)}
+                  placeholder="0"
+                  keyboardType="numeric"
+                  placeholderTextColor="#94a3b8"
+                />
               </View>
             </View>
           </View>
@@ -224,18 +265,65 @@ export default function AddPropertyScreen(): React.ReactElement {
             <View style={styles.gridRow}>
               <View style={styles.gridCell}>
                 <Text style={styles.label}>غرف النوم</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.bedrooms}
+                  onChangeText={(v) => update('bedrooms', v)}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  placeholderTextColor="#94a3b8"
+                />
               </View>
               <View style={styles.gridCell}>
                 <Text style={styles.label}>الحمامات</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.bathrooms}
+                  onChangeText={(v) => update('bathrooms', v)}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  placeholderTextColor="#94a3b8"
+                />
               </View>
             </View>
             <View style={styles.gridRow}>
               <View style={styles.gridCell}>
                 <Text style={styles.label}>الطابق</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.floor}
+                  onChangeText={(v) => update('floor', v)}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  placeholderTextColor="#94a3b8"
+                />
               </View>
               <View style={styles.gridCell}>
                 <Text style={styles.label}>عدد الطوابق</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.totalFloors}
+                  onChangeText={(v) => update('totalFloors', v)}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  placeholderTextColor="#94a3b8"
+                />
               </View>
+            </View>
+
+            <View style={styles.gridRow}>
+              <View style={styles.gridCell}>
+                <Text style={styles.label}>مواقف السيارات</Text>
+                <TextInput
+                  style={styles.input}
+                  value={form.parkingSpaces}
+                  onChangeText={(v) => update('parkingSpaces', v)}
+                  placeholder="0"
+                  keyboardType="number-pad"
+                  placeholderTextColor="#94a3b8"
+                />
+              </View>
+              <View style={styles.gridCell} />
             </View>
 
             <Text style={styles.label}>التأثيث</Text>
@@ -257,12 +345,32 @@ export default function AddPropertyScreen(): React.ReactElement {
                 </TouchableOpacity>
               ))}
             </View>
+
+            <Text style={styles.label}>حالة العقار</Text>
+            <View style={styles.row}>
+              {CONDITION_OPTS.map((c) => (
+                <TouchableOpacity
+                  key={c.key}
+                  style={[styles.optionBtn, form.condition === c.key && styles.optionBtnActive]}
+                  onPress={() => update('condition', form.condition === c.key ? '' : c.key)}
+                >
+                  <Text
+                    style={[
+                      styles.optionBtnText,
+                      form.condition === c.key && styles.optionBtnTextActive,
+                    ]}
+                  >
+                    {c.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
           {/* Location */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>الموقع</Text>
-            <Text style={styles.label}>العنوان التفصيلي</Text>
+            <Text style={styles.label}>العنوان التفصيلي *</Text>
             <TextInput
               style={styles.input}
               value={form.address}
@@ -280,7 +388,7 @@ export default function AddPropertyScreen(): React.ReactElement {
             />
           </View>
 
-          <View style={{ height: 100 }} />
+          {/* <View style={{ height: 100 }} /> */}
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -321,6 +429,7 @@ const styles = StyleSheet.create({
   section: { backgroundColor: '#fff', padding: 20, marginBottom: 8 },
   sectionTitle: { fontSize: 16, fontWeight: '700', color: '#0f172a', marginBottom: 14 },
   label: { fontSize: 13, fontWeight: '600', color: '#374151', marginBottom: 6, marginTop: 12 },
+  labelHint: { fontSize: 11, fontWeight: '400', color: '#94a3b8' },
   input: {
     borderWidth: 1.5,
     borderColor: '#e2e8f0',
@@ -357,7 +466,7 @@ const styles = StyleSheet.create({
   gridRow: { flexDirection: 'row', gap: 12 },
   gridCell: { flex: 1 },
   footer: {
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
     paddingHorizontal: 20,
     paddingBottom: Platform.OS === 'ios' ? 32 : 20,
     paddingTop: 12,
@@ -369,6 +478,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 16,
     alignItems: 'center',
+    marginBottom: 80,
   },
   submitBtnDisabled: { opacity: 0.5 },
   submitText: { color: '#fff', fontSize: 16, fontWeight: '700' },

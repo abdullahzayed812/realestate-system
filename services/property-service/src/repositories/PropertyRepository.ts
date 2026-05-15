@@ -39,6 +39,14 @@ export class PropertyRepository {
     this.db = DatabaseConnection.getInstance();
   }
 
+  async findBrokerIdByUserId(userId: string): Promise<string | null> {
+    const { rows } = await this.db.execute<RowDataPacket>(
+      'SELECT id FROM brokers WHERE user_id = ? AND deleted_at IS NULL LIMIT 1',
+      [userId],
+    );
+    return rows[0]?.id ?? null;
+  }
+
   async findById(id: string): Promise<IProperty | null> {
     const { rows } = await this.db.execute<PropertyRow>(
       `SELECT id, broker_id AS brokerId, company_id AS companyId,
@@ -171,6 +179,49 @@ export class PropertyRepository {
       WHERE p.deleted_at IS NULL AND p.status = 'ACTIVE'
       ${conditions}
       ${orderClause}
+      LIMIT ? OFFSET ?
+    `;
+
+    const [countResult, dataResult] = await Promise.all([
+      this.db.query<RowDataPacket>(countQuery, params),
+      this.db.query<PropertyRow>(dataQuery, [...params, limit, offset]),
+    ]);
+
+    return {
+      data: dataResult.rows as IProperty[],
+      total: (countResult.rows[0] as RowDataPacket)?.total || 0,
+    };
+  }
+
+  async findManyAdmin(
+    status: string | undefined,
+    page: number,
+    limit: number,
+  ): Promise<{ data: IProperty[]; total: number }> {
+    const offset = (page - 1) * limit;
+    const statusClause = status ? 'AND p.status = ?' : '';
+    const params: unknown[] = status ? [status] : [];
+
+    const countQuery = `
+      SELECT COUNT(*) AS total
+      FROM properties p
+      WHERE p.deleted_at IS NULL ${statusClause}
+    `;
+
+    const dataQuery = `
+      SELECT p.id, p.broker_id AS brokerId, p.company_id AS companyId,
+             p.title, p.title_ar AS titleAr, p.type, p.listing_type AS listingType,
+             p.status, p.price, p.currency, p.price_per AS pricePer,
+             p.area, p.bedrooms, p.bathrooms, p.furnished,
+             p.is_featured AS isFeatured, p.is_verified AS isVerified,
+             p.views_count AS viewsCount, p.favorites_count AS favoritesCount,
+             p.created_at AS createdAt, p.updated_at AS updatedAt,
+             pl.city, pl.district, pl.address,
+             (SELECT url FROM property_images WHERE property_id = p.id AND is_primary = TRUE LIMIT 1) AS primaryImage
+      FROM properties p
+      LEFT JOIN property_locations pl ON p.id = pl.property_id
+      WHERE p.deleted_at IS NULL ${statusClause}
+      ORDER BY p.created_at DESC
       LIMIT ? OFFSET ?
     `;
 
@@ -448,9 +499,11 @@ export class PropertyRepository {
     if (status) params.push(status);
 
     const { rows } = await this.db.execute<PropertyRow>(
-      `SELECT id, broker_id AS brokerId, title, type, listing_type AS listingType,
-              status, price, currency, area, bedrooms, bathrooms,
-              is_featured AS isFeatured, views_count AS viewsCount,
+      `SELECT id, broker_id AS brokerId, title, title_ar AS titleAr,
+              type, listing_type AS listingType, status,
+              price, currency, area, bedrooms, bathrooms,
+              is_featured AS isFeatured, is_verified AS isVerified,
+              views_count AS viewsCount, favorites_count AS favoritesCount,
               created_at AS createdAt, updated_at AS updatedAt
        FROM properties
        WHERE broker_id = ? AND deleted_at IS NULL ${statusClause}

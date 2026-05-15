@@ -1,15 +1,9 @@
-import {
-  IProperty, IPropertyFull, IPropertyFilter,
-  PropertyStatus,
-} from '@realestate/types';
-import { NotFoundError, ForbiddenError } from '@realestate/errors';
+import { IProperty, IPropertyFull, IPropertyFilter, PropertyStatus } from '@realestate/types';
+import { NotFoundError, ForbiddenError, UnauthorizedError } from '@realestate/errors';
 import { RedisConnection } from '@realestate/database';
 import { parsePagination, buildPaginationMeta, createLogger } from '@realestate/utils';
 import { IPaginationQuery, IPaginatedResponse } from '@realestate/types';
-import {
-  PropertyRepository,
-  ICreatePropertyData,
-} from '../repositories/PropertyRepository';
+import { PropertyRepository, ICreatePropertyData } from '../repositories/PropertyRepository';
 import { FavoriteRepository } from '../repositories/FavoriteRepository';
 
 const logger = createLogger('PropertyService');
@@ -26,6 +20,12 @@ export class PropertyService {
     this.redis = RedisConnection.getInstance();
   }
 
+  private async resolveBrokerId(userId: string): Promise<string> {
+    const brokerId = await this.propertyRepo.findBrokerIdByUserId(userId);
+    if (!brokerId) throw new UnauthorizedError('No broker profile found for this user');
+    return brokerId;
+  }
+
   async createProperty(
     data: ICreatePropertyData & {
       location: {
@@ -40,6 +40,7 @@ export class PropertyService {
       features?: Array<{ feature: string; featureAr?: string; category: string }>;
     },
   ): Promise<IProperty> {
+    data.brokerId = await this.resolveBrokerId(data.brokerId);
     const property = await this.propertyRepo.create(data);
 
     await this.propertyRepo.addLocation(property.id, data.location);
@@ -91,16 +92,21 @@ export class PropertyService {
     };
   }
 
+  async getAdminProperties(
+    status: string | undefined,
+    page: number,
+    limit: number,
+  ): Promise<IPaginatedResponse<IProperty>> {
+    const { data, total } = await this.propertyRepo.findManyAdmin(status, page, limit);
+    return { data, meta: buildPaginationMeta(total, page, limit) };
+  }
+
   async getFeaturedProperties(): Promise<IProperty[]> {
     const cacheKey = 'properties:featured';
     const cached = await this.redis.getJson<IProperty[]>(cacheKey);
     if (cached) return cached;
 
-    const { data } = await this.propertyRepo.findMany(
-      { isFeatured: true },
-      1,
-      10,
-    );
+    const { data } = await this.propertyRepo.findMany({ isFeatured: true }, 1, 10);
 
     await this.redis.setJson(cacheKey, data, CACHE_TTL);
     return data;
@@ -108,9 +114,10 @@ export class PropertyService {
 
   async updateProperty(
     id: string,
-    brokerId: string,
+    userId: string,
     data: Partial<ICreatePropertyData>,
   ): Promise<IProperty> {
+    const brokerId = await this.resolveBrokerId(userId);
     const property = await this.propertyRepo.findById(id);
 
     if (!property) throw new NotFoundError('Property', id);
@@ -126,12 +133,15 @@ export class PropertyService {
     return (await this.propertyRepo.findById(id))!;
   }
 
-  async deleteProperty(id: string, brokerId: string, isAdmin = false): Promise<void> {
+  async deleteProperty(id: string, userId: string, isAdmin = false): Promise<void> {
     const property = await this.propertyRepo.findById(id);
 
     if (!property) throw new NotFoundError('Property', id);
-    if (!isAdmin && property.brokerId !== brokerId) {
-      throw new ForbiddenError('You are not authorized to delete this property');
+    if (!isAdmin) {
+      const brokerId = await this.resolveBrokerId(userId);
+      if (property.brokerId !== brokerId) {
+        throw new ForbiddenError('You are not authorized to delete this property');
+      }
     }
 
     await this.propertyRepo.softDelete(id);
@@ -161,7 +171,8 @@ export class PropertyService {
     logger.info(`Property rejected: ${id}`);
   }
 
-  async getBrokerProperties(brokerId: string, status?: PropertyStatus): Promise<IProperty[]> {
+  async getBrokerProperties(userId: string, status?: PropertyStatus): Promise<IProperty[]> {
+    const brokerId = await this.resolveBrokerId(userId);
     return this.propertyRepo.findByBroker(brokerId, status);
   }
 

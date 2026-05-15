@@ -1,13 +1,100 @@
+# ============================================================
+# ROOT / MONOREPO
+# ============================================================
 node_modules/
 dist/
 build/
+.cache/
+.turbo/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tsbuildinfo
+
+# Environment files (all apps/services)
 .env
 .env.local
 .env.*.local
-*.log
+.env.production
+
+# OS
 .DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test coverage
 coverage/
 .nyc_output/
-*.tsbuildinfo
-.cache/
-.turbo/
+
+# ============================================================
+# REACT NATIVE — broker-mobile & customer-mobile
+# ============================================================
+# Metro bundler cache
+apps/broker-mobile/.metro-health-check*
+apps/customer-mobile/.metro-health-check*
+
+# React Native build artifacts
+apps/broker-mobile/.expo/
+apps/customer-mobile/.expo/
+
+# Watchman
+.watchmanconfig
+
+# ============================================================
+# ANDROID — broker-mobile
+# ============================================================
+apps/broker-mobile/android/.gradle/
+apps/broker-mobile/android/app/build/
+apps/broker-mobile/android/build/
+apps/broker-mobile/android/local.properties
+apps/broker-mobile/android/*.keystore
+apps/broker-mobile/android/app/release/
+apps/broker-mobile/android/app/*.jks
+
+# ============================================================
+# ANDROID — customer-mobile
+# ============================================================
+apps/customer-mobile/android/.gradle/
+apps/customer-mobile/android/app/build/
+apps/customer-mobile/android/build/
+apps/customer-mobile/android/local.properties
+apps/customer-mobile/android/*.keystore
+apps/customer-mobile/android/app/release/
+apps/customer-mobile/android/app/*.jks
+
+# ============================================================
+# iOS — broker-mobile
+# ============================================================
+apps/broker-mobile/ios/Pods/
+apps/broker-mobile/ios/build/
+apps/broker-mobile/ios/*.xcworkspace/xcuserdata/
+apps/broker-mobile/ios/*.xcodeproj/xcuserdata/
+apps/broker-mobile/ios/DerivedData/
+
+# ============================================================
+# iOS — customer-mobile
+# ============================================================
+apps/customer-mobile/ios/Pods/
+apps/customer-mobile/ios/build/
+apps/customer-mobile/ios/*.xcworkspace/xcuserdata/
+apps/customer-mobile/ios/*.xcodeproj/xcuserdata/
+apps/customer-mobile/ios/DerivedData/
+
+# ============================================================
+# ADMIN DASHBOARD (React + Vite)
+# ============================================================
+apps/admin-dashboard/dist/
+apps/admin-dashboard/.vite/
+
+# ============================================================
+# BACKEND SERVICES (Node.js / Express)
+# ============================================================
+services/*/dist/
+services/*/build/
+services/*/.env

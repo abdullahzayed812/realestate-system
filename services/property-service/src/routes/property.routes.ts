@@ -13,6 +13,10 @@ const controller = new PropertyController();
 // Public routes
 router.get('/', optionalAuthenticate, controller.searchProperties);
 router.get('/featured', controller.getFeatured);
+
+// Admin route — must be before /:id
+router.get('/admin', authenticate, authorize('ADMIN'), controller.getAdminProperties);
+
 router.get('/:id', optionalAuthenticate, controller.getProperty);
 
 // Broker routes

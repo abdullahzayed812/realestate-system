@@ -63,6 +63,10 @@ export class BookingService {
     return booking;
   }
 
+  async getAllBookings(status?: BookingStatus): Promise<IBooking[]> {
+    return this.bookingRepo.findAll(status);
+  }
+
   async getCustomerBookings(customerId: string, status?: BookingStatus): Promise<IBooking[]> {
     return this.bookingRepo.findByCustomer(customerId, status);
   }

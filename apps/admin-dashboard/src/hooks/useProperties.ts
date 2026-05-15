@@ -15,7 +15,7 @@ export function useProperties(filter: PropertyFilter = {}) {
     queryFn: async () => {
       const params = new URLSearchParams();
       Object.entries(filter).forEach(([k, v]) => v && params.append(k, String(v)));
-      const { data } = await api.get(`/properties?${params}`);
+      const { data } = await api.get(`/properties/admin?${params}`);
       return data.data;
     },
   });

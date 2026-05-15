@@ -61,6 +61,14 @@ export class PropertyController {
     ApiResponse.paginated(res, result.data, result.meta);
   };
 
+  getAdminProperties = async (req: Request, res: Response): Promise<void> => {
+    const status = req.query.status as string | undefined;
+    const page = Number(req.query.page || 1);
+    const limit = Math.min(Number(req.query.limit || 20), 100);
+    const result = await this.propertyService.getAdminProperties(status, page, limit);
+    ApiResponse.paginated(res, result.data, result.meta);
+  };
+
   getFeatured = async (req: Request, res: Response): Promise<void> => {
     const properties = await this.propertyService.getFeaturedProperties();
     ApiResponse.success(res, properties);

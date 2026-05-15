@@ -197,6 +197,58 @@ export class BookingRepository {
     return (rows[0] as any)?.user_id ?? null;
   }
 
+  async findAll(status?: BookingStatus): Promise<any[]> {
+    const params: unknown[] = [];
+    const statusClause = status ? 'WHERE b.status = ?' : '';
+    if (status) params.push(status);
+
+    const { rows } = await this.db.execute<RowDataPacket>(
+      `SELECT
+         b.id, b.property_id AS propertyId, b.customer_id AS customerId,
+         b.broker_id AS brokerId, b.type, b.status,
+         b.scheduled_at AS scheduledAt,
+         DATE(b.scheduled_at) AS scheduledDate,
+         TIME(b.scheduled_at) AS scheduledTime,
+         b.duration, b.check_in AS checkIn, b.check_out AS checkOut,
+         b.total_price AS totalPrice, b.notes AS message, b.created_at AS createdAt,
+         p.title_ar AS propertyTitleAr, p.type AS propertyType,
+         cu.first_name AS customerFirstName,
+         cu.last_name AS customerLastName,
+         cu.phone AS customerPhone,
+         bu.first_name AS brokerFirstName,
+         bu.last_name AS brokerLastName
+       FROM bookings b
+       LEFT JOIN properties p ON p.id = b.property_id
+       LEFT JOIN users cu ON cu.id = b.customer_id
+       LEFT JOIN users bu ON bu.id = b.broker_id
+       ${statusClause}
+       ORDER BY b.scheduled_at DESC`,
+      params,
+    );
+
+    return rows.map((row: any) => ({
+      id: row.id,
+      type: row.type,
+      status: row.status,
+      scheduledAt: row.scheduledAt,
+      scheduledDate: row.scheduledDate,
+      scheduledTime: row.scheduledTime,
+      totalPrice: row.totalPrice,
+      message: row.message,
+      createdAt: row.createdAt,
+      property: { id: row.propertyId, titleAr: row.propertyTitleAr, type: row.propertyType },
+      customer: {
+        firstName: row.customerFirstName,
+        lastName: row.customerLastName,
+        phone: row.customerPhone,
+      },
+      broker: {
+        firstName: row.brokerFirstName,
+        lastName: row.brokerLastName,
+      },
+    }));
+  }
+
   async findUpcomingReminders(): Promise<IBooking[]> {
     const { rows } = await this.db.execute<BookingRow>(
       `SELECT id, property_id AS propertyId, customer_id AS customerId,

@@ -62,14 +62,18 @@ async function bootstrap(): Promise<void> {
     },
   );
 
-  // Get my bookings
+  // Get bookings (role-aware)
   app.get('/api/bookings', authenticate, async (req, res) => {
     const role = req.user!.role;
     const status = req.query.status as string | undefined;
-    const bookings =
-      role === 'BROKER' || role === 'COMPANY'
-        ? await bookingService.getBrokerBookings(req.user!.sub, status as any)
-        : await bookingService.getCustomerBookings(req.user!.sub, status as any);
+    let bookings;
+    if (role === 'ADMIN') {
+      bookings = await bookingService.getAllBookings(status as any);
+    } else if (role === 'BROKER' || role === 'COMPANY') {
+      bookings = await bookingService.getBrokerBookings(req.user!.sub, status as any);
+    } else {
+      bookings = await bookingService.getCustomerBookings(req.user!.sub, status as any);
+    }
     ApiResponse.success(res, bookings);
   });
 

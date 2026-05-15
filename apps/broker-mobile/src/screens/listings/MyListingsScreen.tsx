@@ -67,8 +67,8 @@ export default function MyListingsScreen(): React.ReactElement {
     queryFn: async () => {
       const params = new URLSearchParams({ limit: '20' });
       if (statusFilter !== 'ALL') params.append('status', statusFilter);
-      const { data } = await api.get(`/properties/broker/my?${params}`);
-      return data.data;
+      const { data } = await api.get(`/properties/broker/my-properties?${params}`);
+      return data;
     },
   });
 
@@ -225,7 +225,7 @@ const styles = StyleSheet.create({
   filterBtnText: { fontSize: 12, fontWeight: '600', color: '#64748b' },
   filterBtnTextActive: { color: '#fff' },
   loadingContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  listContent: { padding: 16, gap: 12 },
+  listContent: { paddingBottom: 120, padding: 16, gap: 12 },
   card: {
     backgroundColor: '#fff',
     borderRadius: 18,
